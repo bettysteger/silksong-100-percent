@@ -1215,6 +1215,18 @@ function App(): ReactElement {
           <button className="btn primary" disabled>Processing...</button>
         </section>
       )}
+
+      <p>&nbsp;</p>
+      <h2 className="title">Credits</h2>
+      <p className="subtitle">
+        If you enjoy this Checklist, consider supporting my work:<br />
+        <iframe src="https://github.com/sponsors/bettysteger/button" title="Sponsor bettysteger" height="32" width="114"></iframe><br />
+        Check out my other open source projects on <a href="https://github.com/bettysteger" target="_blank" rel="noopener">GitHub</a>!
+        <br /><br />
+        <b>Special thanks to</b> <a href="https://github.com/glikoliz" target="_blank" rel="noopener">glikoliz</a> for creating the original code and completion list!<br />
+        I forked the <a href="https://glikoliz.github.io/silksong-save-analyzer/" target="_blank" rel="noopener">Silksong Save Analyzer</a> that lets you track your progress and see everything you haven’t found yet. Simply upload your save file, and it will automatically show your overall completion percentage as well as every item you have or have not found. It also includes a link to an interactive map for every item needed for 100% completion.<br />
+        I added manually tracking of obtained items, saving progress in local storage and mobile support for console players.<br />
+      </p>
     </div>
   )
 }

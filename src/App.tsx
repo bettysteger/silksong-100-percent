@@ -137,6 +137,18 @@ function App(): ReactElement {
     }
   }, [fileError])
 
+  // Handle escape key to close modal on mobile
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && selectedCategory) {
+        setSelectedCategory(null)
+      }
+    }
+
+    document.addEventListener('keydown', handleEscape)
+    return () => document.removeEventListener('keydown', handleEscape)
+  }, [selectedCategory])
+
   const processFile = useCallback(async (pickedFile: File) => {
     setIsProcessing(true)
     setProcessed(false)
@@ -735,8 +747,24 @@ function App(): ReactElement {
                   ))}
                 </div>
               </div>
-              <div className="details-panel">
-                <div className="details-header">
+              {selected && (
+              <div className="details-panel" onClick={(e) => {
+                // Close modal when clicking on backdrop (not on content)
+                if (e.target === e.currentTarget) {
+                  setSelectedCategory(null);
+                }
+              }}>
+                <div className="details-header" onClick={(e) => {
+                  // Check if clicked on the close button (pseudo-element area)
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const clickX = e.clientX - rect.left;
+                  const clickY = e.clientY - rect.top;
+                  const isCloseButton = clickX > rect.width - 60 && clickY < 60; // Approximate close button area
+
+                  if (isCloseButton) {
+                    setSelectedCategory(null);
+                  }
+                }}>
                   <div className="details-title">{selected ? selected.name : 'Details'}</div>
                   <div className="details-sub">{selected ? `${selected.percent} total` : 'Select a category'}</div>
                 </div>
@@ -769,6 +797,7 @@ function App(): ReactElement {
                   })()}
                 </div>
               </div>
+              )}
             </div>
           )
         })()}

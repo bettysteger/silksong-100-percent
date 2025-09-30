@@ -75,7 +75,7 @@
   font-size: 15px;
 }
 
-.dropzone .linklike {
+.linklike {
   color: #9cabff;
   background: transparent;
   border: none;
@@ -83,7 +83,7 @@
   cursor: pointer;
   padding: 0 2px;
 }
-.dropzone .linklike:hover {
+.linklike:hover {
   color: #c2c9ff;
   text-decoration: underline;
 }

@@ -252,12 +252,12 @@ function App(): ReactElement {
 
   const onFileChosen = useCallback((f: NullableFile) => {
     if (!f) return
-    
+
     if (!f.name.toLowerCase().endsWith('.dat')) {
       setFileError('Please select a .dat file')
       return
     }
-    
+
     setFileError(null)
     void processFile(f)
   }, [processFile])
@@ -292,9 +292,492 @@ function App(): ReactElement {
   return (
     <div className="container">
       <header className="header">
-        <h1 className="title">Silksong 100% Analyzer</h1>
-        <p className="subtitle">Upload your save file (user*.dat) from: %USERPROFILE%\AppData\LocalLow\Team Cherry\Hollow Knight Silksong</p>
+        <h1 className="title">Silksong 100% Completion Guide</h1>
+        <p className="subtitle">List of all Requirements to achieve 100% Completion, check all manually or <button className="linklike" onClick={triggerBrowse}>upload a save file</button> below to check your completion percentage instantly!</p>
       </header>
+
+      <section className="section">
+        {(() => {
+          const categories = [
+            { key: 'nail', name: 'Needle upgrades', percent: 4, items: ['Sharpened Needle', 'Shining Needle', 'Hivesteel Needle', 'Pale Steel Needle'] },
+            { key: 'ancientMasks', name: 'Ancient Masks', percent: Math.floor(maskShards.length / 4), items: [] },
+            { key: 'silkSpool', name: 'Silk Spool', percent: Math.floor(spoolFrags.length / 2), items: [] },
+            { key: 'silkHearts', name: 'Silk Hearts', percent: 3, items: ['Silk Heart 1', 'Silk Heart 2', 'Silk Heart 3'] },
+            { key: 'misc', name: 'Miscellaneous', percent: 2, items: ['Sylphsong (EVAHEAL/BoundCrestUpgrader)', 'Everbloom (WhiteFlower)'] },
+            { key: 'crests', name: 'Crests', percent: 6, items: ['Architect (Toolmaster)', 'Beast (Warrior)', 'Reaper (Reaper)', 'Shaman (Spell)', 'Wanderer (Wanderer)', 'Witch (Witch)'] },
+            { key: 'skills', name: 'Skills', percent: 6, items: ['Cross Stitch (Parry)', 'Pale Nails (Silk Boss Needle)', 'Sharpdart (Silk Charge)', 'Silkspear (Silk Spear)', 'Rune Rage (Silk Bomb)', 'Thread Storm (Thread Sphere)'] },
+            { key: 'craftingKit', name: 'Crafting Kit Upgrades', percent: 4, items: ['Expansion 1', 'Expansion 2', 'Expansion 3', 'Expansion 4'] },
+            { key: 'toolPouch', name: 'Tool Pouch Upgrades', percent: 4, items: ['Expansion 1', 'Expansion 2', 'Expansion 3', 'Expansion 4'] },
+            { key: 'abilities', name: 'Abilities', percent: 6, items: ['Clawline', 'Cling Grip', 'Needle Strike', 'Needolin', 'Silk Soar', 'Swift Step'] },
+            { key: 'tools', name: 'Tools', percent: 51, items: [] }
+          ]
+          const complete = (key: string) => {
+            const filterByAct = (items: any[]) => {
+              if (actFilter === 0) return items
+              return items.filter(item => item.act === actFilter || (item.whichAct && item.whichAct === actFilter))
+            }
+
+            if (key === 'tools') {
+              const filteredTools = filterByAct(tools.map(t => {
+                const meta = TOOL_ITEMS.find(tm => tm.display === t.name)
+                return { ...t, whichAct: meta?.whichAct }
+              }))
+              return filteredTools.length === 0 || filteredTools.every(t => t.isUnlocked)
+            }
+            if (key === 'nail') {
+              const filteredNails = filterByAct(NAIL_UPGRADES)
+              return filteredNails.length === 0 || filteredNails.every(n => n.key === 'u1' ? nail.u1 : n.key === 'u2' ? nail.u2 : n.key === 'u3' ? nail.u3 : nail.u4)
+            }
+            if (key === 'toolPouch') {
+              const filteredTP = filterByAct(TOOL_POUCH_UPGRADES)
+              return filteredTP.length === 0 || filteredTP.every(tp => tp.key === 'u1' ? toolPouch.u1 : tp.key === 'u2' ? toolPouch.u2 : tp.key === 'u3' ? toolPouch.u3 : toolPouch.u4)
+            }
+            if (key === 'craftingKit') {
+              const filteredCK = filterByAct(CRAFTING_KIT_UPGRADES)
+              return filteredCK.length === 0 || filteredCK.every(ck => ck.key === 'u1' ? craftingKit.u1 : ck.key === 'u2' ? craftingKit.u2 : ck.key === 'u3' ? craftingKit.u3 : craftingKit.u4)
+            }
+            if (key === 'ancientMasks') {
+              const filteredMasks = filterByAct(maskShards)
+              if (actFilter === 0) {
+                const maxMasks = Math.floor(filteredMasks.length / 4)
+                const currentMasks = Math.floor(filteredMasks.filter(x => x.ok).length / 4)
+                return maxMasks === 0 || currentMasks >= maxMasks
+              } else {
+                return filteredMasks.length === 0 || filteredMasks.every(x => x.ok)
+              }
+            }
+            if (key === 'silkSpool') {
+              const filteredSpools = filterByAct(spoolFrags)
+              if (actFilter === 0) {
+                const maxSpools = Math.floor(filteredSpools.length / 2)
+                const currentSpools = Math.floor(filteredSpools.filter(x => x.ok).length / 2)
+                return maxSpools === 0 || currentSpools >= maxSpools
+              } else {
+                return filteredSpools.length === 0 || filteredSpools.every(x => x.ok)
+              }
+            }
+            if (key === 'silkHearts') {
+              const filteredHearts = filterByAct(silkHearts)
+              return filteredHearts.length === 0 || filteredHearts.every(h => h.ok)
+            }
+            if (key === 'misc') {
+              const filteredMisc = filterByAct(miscItems)
+              return filteredMisc.length === 0 || filteredMisc.every(m => m.ok)
+            }
+            if (key === 'crests') {
+              const filteredCrests = filterByAct(crests)
+              return filteredCrests.length === 0 || filteredCrests.every(c => c.ok)
+            }
+            if (key === 'skills') {
+              const filteredSkills = filterByAct(skills)
+              return filteredSkills.length === 0 || filteredSkills.every(s => s.ok)
+            }
+            if (key === 'abilities') {
+              const filteredAbilities = filterByAct(abilities)
+              return filteredAbilities.length === 0 || filteredAbilities.every(a => a.ok)
+            }
+            return false
+          }
+          const categoryProgress = (key: string): { have: number; total: number } => {
+            const def = categories.find(c => c.key === key)
+            const total = def?.percent ?? 0
+
+            const filterByAct = (items: any[]) => {
+              if (actFilter === 0) return items
+              return items.filter(item => item.act === actFilter || (item.whichAct && item.whichAct === actFilter))
+            }
+
+            if (key === 'tools') {
+              const filteredTools = filterByAct(tools.map(t => {
+                const meta = TOOL_ITEMS.find(tm => tm.display === t.name)
+                return { ...t, whichAct: meta?.whichAct }
+              }))
+              const have = filteredTools.filter(t => t.isUnlocked).length
+              return { have, total: filteredTools.length }
+            }
+            if (key === 'nail') {
+              const filteredNails = filterByAct(NAIL_UPGRADES)
+              const got = filteredNails.filter(n => n.key === 'u1' ? nail.u1 : n.key === 'u2' ? nail.u2 : n.key === 'u3' ? nail.u3 : nail.u4).length
+              return { have: got, total: filteredNails.length }
+            }
+            if (key === 'toolPouch') {
+              const filteredTP = filterByAct(TOOL_POUCH_UPGRADES)
+              const got = filteredTP.filter(tp => tp.key === 'u1' ? toolPouch.u1 : tp.key === 'u2' ? toolPouch.u2 : tp.key === 'u3' ? toolPouch.u3 : toolPouch.u4).length
+              return { have: got, total: filteredTP.length }
+            }
+            if (key === 'craftingKit') {
+              const filteredCK = filterByAct(CRAFTING_KIT_UPGRADES)
+              const got = filteredCK.filter(ck => ck.key === 'u1' ? craftingKit.u1 : ck.key === 'u2' ? craftingKit.u2 : ck.key === 'u3' ? craftingKit.u3 : craftingKit.u4).length
+              return { have: got, total: filteredCK.length }
+            }
+            if (key === 'ancientMasks') {
+              const filteredMasks = filterByAct(maskShards)
+              if (actFilter === 0) {
+                const fragments = filteredMasks.filter(x => x.ok).length
+                const totalFragments = filteredMasks.length
+                const masks = Math.floor(fragments / 4)
+                const maxMasks = Math.floor(totalFragments / 4)
+                const have = Math.min(masks, maxMasks)
+                return { have, total: maxMasks }
+              } else {
+                const fragments = filteredMasks.filter(x => x.ok).length
+                const totalFragments = filteredMasks.length
+                return { have: fragments, total: totalFragments }
+              }
+            }
+            if (key === 'silkSpool') {
+              const filteredSpools = filterByAct(spoolFrags)
+              if (actFilter === 0) {
+                const fragments = filteredSpools.filter(x => x.ok).length
+                const totalFragments = filteredSpools.length
+                const spools = Math.floor(fragments / 2)
+                const maxSpools = Math.floor(totalFragments / 2)
+                const have = Math.min(spools, maxSpools)
+                return { have, total: maxSpools }
+              } else {
+                const fragments = filteredSpools.filter(x => x.ok).length
+                const totalFragments = filteredSpools.length
+                return { have: fragments, total: totalFragments }
+              }
+            }
+            if (key === 'silkHearts') {
+              const filteredHearts = filterByAct(silkHearts)
+              const got = filteredHearts.filter(x => x.ok).length
+              const totalHearts = filteredHearts.length
+              const have = Math.min(got, totalHearts)
+              return { have, total: totalHearts }
+            }
+            if (key === 'misc') {
+              const filteredMisc = filterByAct(miscItems)
+              const got = filteredMisc.filter(x => x.ok).length
+              const totalMisc = filteredMisc.length
+              const have = Math.min(got, totalMisc)
+              return { have, total: totalMisc }
+            }
+            if (key === 'crests') {
+              const filteredCrests = filterByAct(crests)
+              const got = filteredCrests.filter(x => x.ok).length
+              const totalCrests = filteredCrests.length
+              const have = Math.min(got, totalCrests)
+              return { have, total: totalCrests }
+            }
+            if (key === 'skills') {
+              const filteredSkills = filterByAct(skills)
+              const got = filteredSkills.filter(x => x.ok).length
+              const totalSkills = filteredSkills.length
+              const have = Math.min(got, totalSkills)
+              return { have, total: totalSkills }
+            }
+            if (key === 'abilities') {
+              const filteredAbilities = filterByAct(abilities)
+              const got = filteredAbilities.filter(x => x.ok).length
+              const totalAbilities = filteredAbilities.length
+              const have = Math.min(got, totalAbilities)
+              return { have, total: totalAbilities }
+            }
+            return { have: 0, total: 0 }
+          }
+          const globalTotals = (() => {
+            const tTotal = tools.length
+            const tHave = tools.filter(t => t.isUnlocked).length
+            const nTotal = 4
+            const nHave = [nail.u1, nail.u2, nail.u3, nail.u4].filter(Boolean).length
+            const tpTotal = 4
+            const tpHave = [toolPouch.u1, toolPouch.u2, toolPouch.u3, toolPouch.u4].filter(Boolean).length
+            const ckTotal = 4
+            const ckHave = [craftingKit.u1, craftingKit.u2, craftingKit.u3, craftingKit.u4].filter(Boolean).length
+            const mTotal = Math.floor(maskShards.length / 4)
+            const mHave = Math.floor(maskShards.filter(x => x.ok).length / 4)
+            const sTotal = Math.floor(spoolFrags.length / 2)
+            const sHave = Math.floor(spoolFrags.filter(x => x.ok).length / 2)
+            const hTotal = 3
+            const hHave = silkHearts.filter(x => x.ok).length
+            const miscTotal = 2
+            const miscHave = miscItems.filter(x => x.ok).length
+            const crestTotal = 6
+            const crestHave = crests.filter(x => x.ok).length
+            const skillTotal = 6
+            const skillHave = skills.filter(x => x.ok).length
+            const abilityTotal = 6
+            const abilityHave = abilities.filter(x => x.ok).length
+            const totalHave = tHave + nHave + tpHave + ckHave + mHave + sHave + hHave + miscHave + crestHave + skillHave + abilityHave
+            const totalMax = tTotal + nTotal + tpTotal + ckTotal + mTotal + sTotal + hTotal + miscTotal + crestTotal + skillTotal + abilityTotal
+            return { have: totalHave, total: totalMax }
+          })()
+          const detailsItems = (key: string) => {
+            if (key === 'nail') {
+              const mapOk: Record<string, boolean> = { u1: nail.u1, u2: nail.u2, u3: nail.u3, u4: nail.u4 }
+              return makeItemRowsFromDefs(NAIL_UPGRADES as NailUpgrade[], mapOk, actFilter, hideFound)
+            }
+            if (key === 'toolPouch') {
+              const mapOk: Record<string, boolean> = { u1: toolPouch.u1, u2: toolPouch.u2, u3: toolPouch.u3, u4: toolPouch.u4 }
+              return makeItemRowsFromDefs(TOOL_POUCH_UPGRADES, mapOk, actFilter, hideFound)
+            }
+            if (key === 'craftingKit') {
+              const mapOk: Record<string, boolean> = { u1: craftingKit.u1, u2: craftingKit.u2, u3: craftingKit.u3, u4: craftingKit.u4 }
+              return makeItemRowsFromDefs(CRAFTING_KIT_UPGRADES, mapOk, actFilter, hideFound)
+            }
+            if (key === 'tools') return tools.map(t => {
+              const meta = TOOL_ITEMS.find(tm => tm.display === t.name)
+              return { key: `tool-${t.name}`, name: t.name, ok: t.isUnlocked, link: t.link, desc: meta?.desc, act: meta?.whichAct ?? 0 }
+            }).filter(it => (actFilter === 0 || (typeof it.act !== 'undefined' && it.act === actFilter)) && (!hideFound ? true : !it.ok))
+            if (key === 'ancientMasks') {
+              return maskShards.filter(s => (actFilter === 0 || s.act === actFilter) && (!hideFound ? true : !s.ok)).map((s, i) => ({ key: `mask-${i}`, name: s.name, ok: s.ok, link: s.link, desc: s.desc, act: s.act }))
+            }
+            if (key === 'silkSpool') {
+              return spoolFrags.filter(s => (actFilter === 0 || s.act === actFilter) && (!hideFound ? true : !s.ok)).map((s, i) => ({ key: `spool-${i}`, name: s.name, ok: s.ok, link: s.link, desc: s.desc, act: s.act }))
+            }
+            if (key === 'silkHearts') {
+              return silkHearts.filter(h => (actFilter === 0 || h.act === actFilter) && (!hideFound ? true : !h.ok)).map((h, i) => ({ key: `heart-${i}`, name: h.name, ok: h.ok, link: h.link, desc: h.desc, act: h.act }))
+            }
+            if (key === 'misc') {
+              return miscItems.filter(m => (actFilter === 0 || m.act === actFilter) && (!hideFound ? true : !m.ok)).map((m, i) => ({ key: `misc-${i}`, name: m.name, ok: m.ok, link: m.link, desc: m.desc, act: m.act }))
+            }
+            if (key === 'crests') {
+              return crests.filter(c => (actFilter === 0 || c.act === actFilter) && (!hideFound ? true : !c.ok)).map((c, i) => ({ key: `crest-${i}`, name: c.name, ok: c.ok, link: c.link, desc: c.desc, act: c.act }))
+            }
+            if (key === 'skills') {
+              return skills.filter(s => (actFilter === 0 || s.act === actFilter) && (!hideFound ? true : !s.ok)).map((s, i) => ({ key: `skill-${i}`, name: s.name, ok: s.ok, link: s.link, desc: s.desc, act: s.act }))
+            }
+            if (key === 'abilities') {
+              return abilities.filter(a => (actFilter === 0 || a.act === actFilter) && (!hideFound ? true : !a.ok)).map((a, i) => ({ key: `ability-${i}`, name: a.name, ok: a.ok, link: a.link, desc: a.desc, act: a.act }))
+            }
+            const def = categories.find(c => c.key === key)
+            return (def?.items ?? []).map((n, i) => ({ key: `${key}-${i}`, name: n, ok: false }))
+          }
+          const selected = categories.find(c => c.key === selectedCategory) ?? null
+          return (
+            <div className="overview-layout">
+              <div>
+                {(() => {
+                  const completionPercentage = globalTotals.total > 0 ? Math.round((globalTotals.have / globalTotals.total) * 100) : 0
+                  const getActTotals = (act: 1 | 2 | 3) => {
+                    let itemsHave = 0, itemsTotal = 0
+                    const actTools = tools.filter(t => {
+                      const meta = TOOL_ITEMS.find(tm => tm.display === t.name)
+                      return meta?.whichAct === act
+                    })
+                    const toolsHave = actTools.filter(t => t.isUnlocked).length
+                    const toolsTotal = actTools.length
+                    itemsHave += toolsHave
+                    itemsTotal += toolsTotal
+
+                    const actNails = NAIL_UPGRADES.filter(n => n.whichAct === act)
+                    const nailsHave = actNails.filter(n => n.key === 'u1' ? nail.u1 : n.key === 'u2' ? nail.u2 : n.key === 'u3' ? nail.u3 : nail.u4).length
+                    const nailsTotal = actNails.length
+                    itemsHave += nailsHave
+                    itemsTotal += nailsTotal
+
+                    const actToolPouch = TOOL_POUCH_UPGRADES.filter(tp => tp.whichAct === act)
+                    const tpHave = actToolPouch.filter(tp => tp.key === 'u1' ? toolPouch.u1 : tp.key === 'u2' ? toolPouch.u2 : tp.key === 'u3' ? toolPouch.u3 : toolPouch.u4).length
+                    const tpTotal = actToolPouch.length
+                    itemsHave += tpHave
+                    itemsTotal += tpTotal
+
+                    const actCraftingKit = CRAFTING_KIT_UPGRADES.filter(ck => ck.whichAct === act)
+                    const ckHave = actCraftingKit.filter(ck => ck.key === 'u1' ? craftingKit.u1 : ck.key === 'u2' ? craftingKit.u2 : ck.key === 'u3' ? craftingKit.u3 : craftingKit.u4).length
+                    const ckTotal = actCraftingKit.length
+                    itemsHave += ckHave
+                    itemsTotal += ckTotal
+
+                    const actMaskFragments = maskShards.filter(m => m.act === act)
+                    const maskFragsHave = actMaskFragments.filter(m => m.ok).length
+                    const maskFragsTotal = actMaskFragments.length
+                    itemsHave += maskFragsHave
+                    itemsTotal += maskFragsTotal
+
+                    const actSpoolFragments = spoolFrags.filter(s => s.act === act)
+                    const spoolFragsHave = actSpoolFragments.filter(s => s.ok).length
+                    const spoolFragsTotal = actSpoolFragments.length
+                    itemsHave += spoolFragsHave
+                    itemsTotal += spoolFragsTotal
+
+                    const categories = [silkHearts, miscItems, crests, skills, abilities]
+                    categories.forEach(category => {
+                      const actItems = category.filter(item => item.act === act)
+                      const have = actItems.filter(item => item.ok).length
+                      const total = actItems.length
+                      itemsHave += have
+                      itemsTotal += total
+                    })
+
+                    return { itemsHave, itemsTotal }
+                  }
+
+                  const act1 = getActTotals(1)
+                  const act2 = getActTotals(2)
+                  const act3 = getActTotals(3)
+
+
+
+                  return (
+                    <div style={{ textAlign: 'center', marginBottom: '20px', padding: '16px', background: 'linear-gradient(135deg, #1a1f2e 0%, #242a33 100%)', borderRadius: '12px', border: '1px solid #2a3441' }}>
+                      <div style={{ fontSize: '16px', color: '#94a3b8', marginBottom: '8px', fontWeight: '500' }}>
+                        Overall Completion (%)
+                      </div>
+                      <div style={{ fontSize: '32px', fontWeight: 'bold', color: globalTotals.have === globalTotals.total ? '#2ecc71' : '#ff7a86', marginBottom: '12px' }}>
+                        {globalTotals.have} / {globalTotals.total}
+                      </div>
+
+                      <div style={{ fontSize: '14px', color: '#94a3b8', marginBottom: '8px', textAlign: 'center', position: 'relative' }}>
+                        Individual Items{' '}
+                        <button
+                          style={{
+                            background: 'none',
+                            border: '1px solid #64748b',
+                            borderRadius: '50%',
+                            width: '14px',
+                            height: '14px',
+                            fontSize: '10px',
+                            color: '#64748b',
+                            cursor: 'pointer',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            marginLeft: '4px'
+                          }}
+                          onMouseEnter={() => setShowTooltip(true)}
+                          onMouseLeave={() => setShowTooltip(false)}
+                          onClick={() => setShowTooltip(!showTooltip)}
+                        >
+                          ?
+                        </button>
+                        {showTooltip && (
+                          <div style={{
+                            position: 'absolute',
+                            top: '100%',
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            backgroundColor: '#1e293b',
+                            color: '#e2e8f0',
+                            padding: '8px 12px',
+                            borderRadius: '6px',
+                            fontSize: '12px',
+                            whiteSpace: 'nowrap',
+                            zIndex: 1000,
+                            border: '1px solid #334155',
+                            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3)',
+                            marginTop: '4px'
+                          }}>
+                            Counts all individual items including mask shards and spool fragments
+                            <br />
+                            Unlike percentage above which counts completed masks/spools only
+                          </div>
+                        )}
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', gap: '12px' }}>
+                        <div style={{ flex: 1, textAlign: 'center' }}>
+                          <div style={{ fontSize: '16px', fontWeight: 'bold', color: act1.itemsHave === act1.itemsTotal ? '#2ecc71' : '#94a3b8' }}>
+                            {act1.itemsHave} / {act1.itemsTotal}
+                          </div>
+                          <div style={{ fontSize: '12px', color: '#64748b' }}>Act 1</div>
+                        </div>
+                        <div style={{ flex: 1, textAlign: 'center' }}>
+                          <div style={{ fontSize: '16px', fontWeight: 'bold', color: act2.itemsHave === act2.itemsTotal ? '#2ecc71' : '#94a3b8' }}>
+                            {act2.itemsHave} / {act2.itemsTotal}
+                          </div>
+                          <div style={{ fontSize: '12px', color: '#64748b' }}>Act 2</div>
+                        </div>
+                        <div style={{ flex: 1, textAlign: 'center' }}>
+                          <div style={{ fontSize: '16px', fontWeight: 'bold', color: act3.itemsHave === act3.itemsTotal ? '#2ecc71' : '#94a3b8' }}>
+                            {act3.itemsHave} / {act3.itemsTotal}
+                          </div>
+                          <div style={{ fontSize: '12px', color: '#64748b' }}>Act 3</div>
+                        </div>
+                      </div>
+                      <div style={{ width: '100%', height: '8px', background: '#1e293b', borderRadius: '4px', overflow: 'hidden' }}>
+                        <div style={{ width: `${completionPercentage}%`, height: '100%', background: globalTotals.have === globalTotals.total ? '#2ecc71' : '#3b82f6', transition: 'width 0.3s ease' }} />
+                      </div>
+                    </div>
+                  )
+                })()}
+                <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'center', gap: '8px' }}>
+                  <button className={`btn small ${actFilter === 0 ? 'primary' : ''}`} onClick={() => setActFilter(0)}>All</button>
+                  <button className={`btn small ${actFilter === 1 ? 'primary' : ''}`} onClick={() => setActFilter(1)}>Act 1</button>
+                  <button className={`btn small ${actFilter === 2 ? 'primary' : ''}`} onClick={() => setActFilter(2)}>Act 2</button>
+                  <button className={`btn small ${actFilter === 3 ? 'primary' : ''}`} onClick={() => setActFilter(3)}>Act 3</button>
+                </div>
+                <div className="placeholder-grid">
+                  {categories.map(c => (
+                    <div key={c.key} className="placeholder-card clickable" onClick={() => setSelectedCategory(c.key)}>
+                      <div className="ph-title">
+                        {c.name}
+                        {actFilter !== 0 && (c.key === 'ancientMasks' || c.key === 'silkSpool') && (
+                          <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 'normal', marginTop: '2px' }}>
+                            {c.key === 'ancientMasks' ? '(individual shards)' : '(individual fragments)'}
+                          </div>
+                        )}
+                      </div>
+                      {(() => {
+                        const pr = categoryProgress(c.key);
+                        const isDone = complete(c.key);
+
+                        if (actFilter === 0 && (c.key === 'ancientMasks' || c.key === 'silkSpool')) {
+                          const fragments = c.key === 'ancientMasks'
+                            ? maskShards.filter(x => x.ok).length + '/' + maskShards.length
+                            : spoolFrags.filter(x => x.ok).length + '/' + spoolFrags.length;
+
+                          return (
+                            <div>
+                              <div className="ph-sub" style={{ color: isDone ? '#2ecc71' : '#ff7a86' }}>
+                                {pr.have} / {pr.total}
+                              </div>
+                              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>
+                                {fragments} {c.key === 'ancientMasks' ? 'shards' : 'fragments'}
+                              </div>
+                            </div>
+                          );
+                        }
+
+                        return (<div className="ph-sub" style={{ color: isDone ? '#2ecc71' : '#ff7a86' }}>{pr.have} / {pr.total}</div>)
+                      })()}
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="details-panel">
+                <div className="details-header">
+                  <div className="details-title">{selected ? selected.name : 'Details'}</div>
+                  <div className="details-sub">{selected ? `${selected.percent} total` : 'Select a category'}</div>
+                </div>
+                <div className="filters-row">
+                  <button className={`btn small ${hideFound ? 'primary' : ''}`} onClick={() => setHideFound(v => !v)}>{hideFound ? 'Show all' : 'Show only missing'}</button>
+                </div>
+                <div className="details-content">
+                  {(() => {
+                    const rows = (selected ? detailsItems(selected.key) : [])
+                    return rows.map((it: any, idx: number) => {
+                      const actVal = (it as any).act as number | undefined
+                      const hasLink = Boolean(it.link && it.link.length > 0 && it.link !== '#')
+                      return (
+                        <div key={it.key ?? `${selected?.key ?? 'none'}-${idx}`} className="item-row" style={{ display: 'grid', gridTemplateColumns: 'auto 1fr auto auto auto', alignItems: 'center', gap: '8px' }}>
+                          {typeof actVal !== 'undefined' ? (
+                            <span className={`act-badge act-${actVal ?? 0}`}>Act {actVal ?? '?'}</span>
+                          ) : (
+                            <span className={`act-badge act-0`} style={{ visibility: 'hidden' }}>Act 0</span>
+                          )}
+                          <span className="item-name">{it.name}</span>
+                          <a className="btn small" href={hasLink ? it.link : '#'} target="_blank" rel="noopener noreferrer" aria-disabled={hasLink ? undefined : true} style={hasLink ? undefined : { pointerEvents: 'none', opacity: 0.5 }}>Open map</a>
+                          <button className="btn small" onClick={() => setExpandedItemKey(expandedItemKey === it.key ? null : it.key)}>Details</button>
+                          <span className={`badge ${it.ok ? 'ok' : 'no'}`} aria-label={it.ok ? 'obtained' : 'not obtained'} title={it.ok ? 'obtained' : 'not obtained'}>{it.ok ? '✓' : '✗'}</span>
+                          {expandedItemKey === it.key && (
+                            <div style={{ gridColumn: '1 / -1', color: '#cbd5e1', fontSize: 13 }}>{it.desc ? it.desc : 'No description yet.'}</div>
+                          )}
+                        </div>
+                      )
+                    })
+                  })()}
+                </div>
+              </div>
+            </div>
+          )
+        })()}
+      </section>
+
+      <p>&nbsp;</p>
+      <h2 className="title">Upload your save file</h2>
+      <p className="subtitle"><code>user*.dat</code> from: <code>%USERPROFILE%\AppData\LocalLow\Team Cherry\Hollow Knight Silksong</code></p>
+
       <section className={`dropzone ${dragActive ? 'active' : ''}`} onDrop={handleDrop} onDragOver={handleDragOver} onDragLeave={handleDragLeave} role="button" aria-label="Drag and drop a .dat file here" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') triggerBrowse() }}>
         <input ref={fileInputRef} type="file" accept=".dat,application/octet-stream" onChange={handleFileChange} className="file-input" />
         <div className="dropzone-inner">
@@ -303,12 +786,12 @@ function App(): ReactElement {
             <strong>Drag and drop</strong> a user.dat file here or <button className="linklike" onClick={triggerBrowse}>browse</button>
           </div>
           {fileError && (
-            <div style={{ 
+            <div style={{
               marginTop: '12px',
-              padding: '8px 12px', 
-              backgroundColor: '#dc2626', 
-              color: 'white', 
-              borderRadius: '6px', 
+              padding: '8px 12px',
+              backgroundColor: '#dc2626',
+              color: 'white',
+              borderRadius: '6px',
               fontSize: '14px',
               textAlign: 'center'
             }}>
@@ -320,485 +803,6 @@ function App(): ReactElement {
       {isProcessing && (
         <section className="actions">
           <button className="btn primary" disabled>Processing...</button>
-        </section>
-      )}
-      {processed && (
-        <section className="section">
-          {(() => {
-            const categories = [
-              { key: 'nail', name: 'Needle upgrades', percent: 4, items: ['Sharpened Needle', 'Shining Needle', 'Hivesteel Needle', 'Pale Steel Needle'] },
-              { key: 'ancientMasks', name: 'Ancient Masks', percent: Math.floor(maskShards.length / 4), items: [] },
-              { key: 'silkSpool', name: 'Silk Spool', percent: Math.floor(spoolFrags.length / 2), items: [] },
-              { key: 'silkHearts', name: 'Silk Hearts', percent: 3, items: ['Silk Heart 1', 'Silk Heart 2', 'Silk Heart 3'] },
-              { key: 'misc', name: 'Miscellaneous', percent: 2, items: ['Sylphsong (EVAHEAL/BoundCrestUpgrader)', 'Everbloom (WhiteFlower)'] },
-              { key: 'crests', name: 'Crests', percent: 6, items: ['Architect (Toolmaster)', 'Beast (Warrior)', 'Reaper (Reaper)', 'Shaman (Spell)', 'Wanderer (Wanderer)', 'Witch (Witch)'] },
-              { key: 'skills', name: 'Skills', percent: 6, items: ['Cross Stitch (Parry)', 'Pale Nails (Silk Boss Needle)', 'Sharpdart (Silk Charge)', 'Silkspear (Silk Spear)', 'Rune Rage (Silk Bomb)', 'Thread Storm (Thread Sphere)'] },
-              { key: 'craftingKit', name: 'Crafting Kit Upgrades', percent: 4, items: ['Expansion 1', 'Expansion 2', 'Expansion 3', 'Expansion 4'] },
-              { key: 'toolPouch', name: 'Tool Pouch Upgrades', percent: 4, items: ['Expansion 1', 'Expansion 2', 'Expansion 3', 'Expansion 4'] },
-              { key: 'abilities', name: 'Abilities', percent: 6, items: ['Clawline', 'Cling Grip', 'Needle Strike', 'Needolin', 'Silk Soar', 'Swift Step'] },
-              { key: 'tools', name: 'Tools', percent: 51, items: [] }
-            ]
-            const complete = (key: string) => {
-              const filterByAct = (items: any[]) => {
-                if (actFilter === 0) return items
-                return items.filter(item => item.act === actFilter || (item.whichAct && item.whichAct === actFilter))
-              }
-
-              if (key === 'tools') {
-                const filteredTools = filterByAct(tools.map(t => {
-                  const meta = TOOL_ITEMS.find(tm => tm.display === t.name)
-                  return { ...t, whichAct: meta?.whichAct }
-                }))
-                return filteredTools.length === 0 || filteredTools.every(t => t.isUnlocked)
-              }
-              if (key === 'nail') {
-                const filteredNails = filterByAct(NAIL_UPGRADES)
-                return filteredNails.length === 0 || filteredNails.every(n => n.key === 'u1' ? nail.u1 : n.key === 'u2' ? nail.u2 : n.key === 'u3' ? nail.u3 : nail.u4)
-              }
-              if (key === 'toolPouch') {
-                const filteredTP = filterByAct(TOOL_POUCH_UPGRADES)
-                return filteredTP.length === 0 || filteredTP.every(tp => tp.key === 'u1' ? toolPouch.u1 : tp.key === 'u2' ? toolPouch.u2 : tp.key === 'u3' ? toolPouch.u3 : toolPouch.u4)
-              }
-              if (key === 'craftingKit') {
-                const filteredCK = filterByAct(CRAFTING_KIT_UPGRADES)
-                return filteredCK.length === 0 || filteredCK.every(ck => ck.key === 'u1' ? craftingKit.u1 : ck.key === 'u2' ? craftingKit.u2 : ck.key === 'u3' ? craftingKit.u3 : craftingKit.u4)
-              }
-              if (key === 'ancientMasks') {
-                const filteredMasks = filterByAct(maskShards)
-                if (actFilter === 0) {
-                  const maxMasks = Math.floor(filteredMasks.length / 4)
-                  const currentMasks = Math.floor(filteredMasks.filter(x => x.ok).length / 4)
-                  return maxMasks === 0 || currentMasks >= maxMasks
-                } else {
-                  return filteredMasks.length === 0 || filteredMasks.every(x => x.ok)
-                }
-              }
-              if (key === 'silkSpool') {
-                const filteredSpools = filterByAct(spoolFrags)
-                if (actFilter === 0) {
-                  const maxSpools = Math.floor(filteredSpools.length / 2)
-                  const currentSpools = Math.floor(filteredSpools.filter(x => x.ok).length / 2)
-                  return maxSpools === 0 || currentSpools >= maxSpools
-                } else {
-                  return filteredSpools.length === 0 || filteredSpools.every(x => x.ok)
-                }
-              }
-              if (key === 'silkHearts') {
-                const filteredHearts = filterByAct(silkHearts)
-                return filteredHearts.length === 0 || filteredHearts.every(h => h.ok)
-              }
-              if (key === 'misc') {
-                const filteredMisc = filterByAct(miscItems)
-                return filteredMisc.length === 0 || filteredMisc.every(m => m.ok)
-              }
-              if (key === 'crests') {
-                const filteredCrests = filterByAct(crests)
-                return filteredCrests.length === 0 || filteredCrests.every(c => c.ok)
-              }
-              if (key === 'skills') {
-                const filteredSkills = filterByAct(skills)
-                return filteredSkills.length === 0 || filteredSkills.every(s => s.ok)
-              }
-              if (key === 'abilities') {
-                const filteredAbilities = filterByAct(abilities)
-                return filteredAbilities.length === 0 || filteredAbilities.every(a => a.ok)
-              }
-              return false
-            }
-            const categoryProgress = (key: string): { have: number; total: number } => {
-              const def = categories.find(c => c.key === key)
-              const total = def?.percent ?? 0
-
-              const filterByAct = (items: any[]) => {
-                if (actFilter === 0) return items
-                return items.filter(item => item.act === actFilter || (item.whichAct && item.whichAct === actFilter))
-              }
-
-              if (key === 'tools') {
-                const filteredTools = filterByAct(tools.map(t => {
-                  const meta = TOOL_ITEMS.find(tm => tm.display === t.name)
-                  return { ...t, whichAct: meta?.whichAct }
-                }))
-                const have = filteredTools.filter(t => t.isUnlocked).length
-                return { have, total: filteredTools.length }
-              }
-              if (key === 'nail') {
-                const filteredNails = filterByAct(NAIL_UPGRADES)
-                const got = filteredNails.filter(n => n.key === 'u1' ? nail.u1 : n.key === 'u2' ? nail.u2 : n.key === 'u3' ? nail.u3 : nail.u4).length
-                return { have: got, total: filteredNails.length }
-              }
-              if (key === 'toolPouch') {
-                const filteredTP = filterByAct(TOOL_POUCH_UPGRADES)
-                const got = filteredTP.filter(tp => tp.key === 'u1' ? toolPouch.u1 : tp.key === 'u2' ? toolPouch.u2 : tp.key === 'u3' ? toolPouch.u3 : toolPouch.u4).length
-                return { have: got, total: filteredTP.length }
-              }
-              if (key === 'craftingKit') {
-                const filteredCK = filterByAct(CRAFTING_KIT_UPGRADES)
-                const got = filteredCK.filter(ck => ck.key === 'u1' ? craftingKit.u1 : ck.key === 'u2' ? craftingKit.u2 : ck.key === 'u3' ? craftingKit.u3 : craftingKit.u4).length
-                return { have: got, total: filteredCK.length }
-              }
-              if (key === 'ancientMasks') {
-                const filteredMasks = filterByAct(maskShards)
-                if (actFilter === 0) {
-                  const fragments = filteredMasks.filter(x => x.ok).length
-                  const totalFragments = filteredMasks.length
-                  const masks = Math.floor(fragments / 4)
-                  const maxMasks = Math.floor(totalFragments / 4)
-                  const have = Math.min(masks, maxMasks)
-                  return { have, total: maxMasks }
-                } else {
-                  const fragments = filteredMasks.filter(x => x.ok).length
-                  const totalFragments = filteredMasks.length
-                  return { have: fragments, total: totalFragments }
-                }
-              }
-              if (key === 'silkSpool') {
-                const filteredSpools = filterByAct(spoolFrags)
-                if (actFilter === 0) {
-                  const fragments = filteredSpools.filter(x => x.ok).length
-                  const totalFragments = filteredSpools.length
-                  const spools = Math.floor(fragments / 2)
-                  const maxSpools = Math.floor(totalFragments / 2)
-                  const have = Math.min(spools, maxSpools)
-                  return { have, total: maxSpools }
-                } else {
-                  const fragments = filteredSpools.filter(x => x.ok).length
-                  const totalFragments = filteredSpools.length
-                  return { have: fragments, total: totalFragments }
-                }
-              }
-              if (key === 'silkHearts') {
-                const filteredHearts = filterByAct(silkHearts)
-                const got = filteredHearts.filter(x => x.ok).length
-                const totalHearts = filteredHearts.length
-                const have = Math.min(got, totalHearts)
-                return { have, total: totalHearts }
-              }
-              if (key === 'misc') {
-                const filteredMisc = filterByAct(miscItems)
-                const got = filteredMisc.filter(x => x.ok).length
-                const totalMisc = filteredMisc.length
-                const have = Math.min(got, totalMisc)
-                return { have, total: totalMisc }
-              }
-              if (key === 'crests') {
-                const filteredCrests = filterByAct(crests)
-                const got = filteredCrests.filter(x => x.ok).length
-                const totalCrests = filteredCrests.length
-                const have = Math.min(got, totalCrests)
-                return { have, total: totalCrests }
-              }
-              if (key === 'skills') {
-                const filteredSkills = filterByAct(skills)
-                const got = filteredSkills.filter(x => x.ok).length
-                const totalSkills = filteredSkills.length
-                const have = Math.min(got, totalSkills)
-                return { have, total: totalSkills }
-              }
-              if (key === 'abilities') {
-                const filteredAbilities = filterByAct(abilities)
-                const got = filteredAbilities.filter(x => x.ok).length
-                const totalAbilities = filteredAbilities.length
-                const have = Math.min(got, totalAbilities)
-                return { have, total: totalAbilities }
-              }
-              return { have: 0, total: 0 }
-            }
-            const globalTotals = (() => {
-              const tTotal = tools.length
-              const tHave = tools.filter(t => t.isUnlocked).length
-              const nTotal = 4
-              const nHave = [nail.u1, nail.u2, nail.u3, nail.u4].filter(Boolean).length
-              const tpTotal = 4
-              const tpHave = [toolPouch.u1, toolPouch.u2, toolPouch.u3, toolPouch.u4].filter(Boolean).length
-              const ckTotal = 4
-              const ckHave = [craftingKit.u1, craftingKit.u2, craftingKit.u3, craftingKit.u4].filter(Boolean).length
-              const mTotal = Math.floor(maskShards.length / 4)
-              const mHave = Math.floor(maskShards.filter(x => x.ok).length / 4)
-              const sTotal = Math.floor(spoolFrags.length / 2)
-              const sHave = Math.floor(spoolFrags.filter(x => x.ok).length / 2)
-              const hTotal = 3
-              const hHave = silkHearts.filter(x => x.ok).length
-              const miscTotal = 2
-              const miscHave = miscItems.filter(x => x.ok).length
-              const crestTotal = 6
-              const crestHave = crests.filter(x => x.ok).length
-              const skillTotal = 6
-              const skillHave = skills.filter(x => x.ok).length
-              const abilityTotal = 6
-              const abilityHave = abilities.filter(x => x.ok).length
-              const totalHave = tHave + nHave + tpHave + ckHave + mHave + sHave + hHave + miscHave + crestHave + skillHave + abilityHave
-              const totalMax = tTotal + nTotal + tpTotal + ckTotal + mTotal + sTotal + hTotal + miscTotal + crestTotal + skillTotal + abilityTotal
-              return { have: totalHave, total: totalMax }
-            })()
-            const detailsItems = (key: string) => {
-              if (key === 'nail') {
-                const mapOk: Record<string, boolean> = { u1: nail.u1, u2: nail.u2, u3: nail.u3, u4: nail.u4 }
-                return makeItemRowsFromDefs(NAIL_UPGRADES as NailUpgrade[], mapOk, actFilter, hideFound)
-              }
-              if (key === 'toolPouch') {
-                const mapOk: Record<string, boolean> = { u1: toolPouch.u1, u2: toolPouch.u2, u3: toolPouch.u3, u4: toolPouch.u4 }
-                return makeItemRowsFromDefs(TOOL_POUCH_UPGRADES, mapOk, actFilter, hideFound)
-              }
-              if (key === 'craftingKit') {
-                const mapOk: Record<string, boolean> = { u1: craftingKit.u1, u2: craftingKit.u2, u3: craftingKit.u3, u4: craftingKit.u4 }
-                return makeItemRowsFromDefs(CRAFTING_KIT_UPGRADES, mapOk, actFilter, hideFound)
-              }
-              if (key === 'tools') return tools.map(t => {
-                const meta = TOOL_ITEMS.find(tm => tm.display === t.name)
-                return { key: `tool-${t.name}`, name: t.name, ok: t.isUnlocked, link: t.link, desc: meta?.desc, act: meta?.whichAct ?? 0 }
-              }).filter(it => (actFilter === 0 || (typeof it.act !== 'undefined' && it.act === actFilter)) && (!hideFound ? true : !it.ok))
-              if (key === 'ancientMasks') {
-                return maskShards.filter(s => (actFilter === 0 || s.act === actFilter) && (!hideFound ? true : !s.ok)).map((s, i) => ({ key: `mask-${i}`, name: s.name, ok: s.ok, link: s.link, desc: s.desc, act: s.act }))
-              }
-              if (key === 'silkSpool') {
-                return spoolFrags.filter(s => (actFilter === 0 || s.act === actFilter) && (!hideFound ? true : !s.ok)).map((s, i) => ({ key: `spool-${i}`, name: s.name, ok: s.ok, link: s.link, desc: s.desc, act: s.act }))
-              }
-              if (key === 'silkHearts') {
-                return silkHearts.filter(h => (actFilter === 0 || h.act === actFilter) && (!hideFound ? true : !h.ok)).map((h, i) => ({ key: `heart-${i}`, name: h.name, ok: h.ok, link: h.link, desc: h.desc, act: h.act }))
-              }
-              if (key === 'misc') {
-                return miscItems.filter(m => (actFilter === 0 || m.act === actFilter) && (!hideFound ? true : !m.ok)).map((m, i) => ({ key: `misc-${i}`, name: m.name, ok: m.ok, link: m.link, desc: m.desc, act: m.act }))
-              }
-              if (key === 'crests') {
-                return crests.filter(c => (actFilter === 0 || c.act === actFilter) && (!hideFound ? true : !c.ok)).map((c, i) => ({ key: `crest-${i}`, name: c.name, ok: c.ok, link: c.link, desc: c.desc, act: c.act }))
-              }
-              if (key === 'skills') {
-                return skills.filter(s => (actFilter === 0 || s.act === actFilter) && (!hideFound ? true : !s.ok)).map((s, i) => ({ key: `skill-${i}`, name: s.name, ok: s.ok, link: s.link, desc: s.desc, act: s.act }))
-              }
-              if (key === 'abilities') {
-                return abilities.filter(a => (actFilter === 0 || a.act === actFilter) && (!hideFound ? true : !a.ok)).map((a, i) => ({ key: `ability-${i}`, name: a.name, ok: a.ok, link: a.link, desc: a.desc, act: a.act }))
-              }
-              const def = categories.find(c => c.key === key)
-              return (def?.items ?? []).map((n, i) => ({ key: `${key}-${i}`, name: n, ok: false }))
-            }
-            const selected = categories.find(c => c.key === selectedCategory) ?? null
-            return (
-              <div className="overview-layout">
-                <div>
-                  {(() => {
-                    const completionPercentage = globalTotals.total > 0 ? Math.round((globalTotals.have / globalTotals.total) * 100) : 0
-                    const getActTotals = (act: 1 | 2 | 3) => {
-                      let itemsHave = 0, itemsTotal = 0
-                      const actTools = tools.filter(t => {
-                        const meta = TOOL_ITEMS.find(tm => tm.display === t.name)
-                        return meta?.whichAct === act
-                      })
-                      const toolsHave = actTools.filter(t => t.isUnlocked).length
-                      const toolsTotal = actTools.length
-                      itemsHave += toolsHave
-                      itemsTotal += toolsTotal
-
-                      const actNails = NAIL_UPGRADES.filter(n => n.whichAct === act)
-                      const nailsHave = actNails.filter(n => n.key === 'u1' ? nail.u1 : n.key === 'u2' ? nail.u2 : n.key === 'u3' ? nail.u3 : nail.u4).length
-                      const nailsTotal = actNails.length
-                      itemsHave += nailsHave
-                      itemsTotal += nailsTotal
-
-                      const actToolPouch = TOOL_POUCH_UPGRADES.filter(tp => tp.whichAct === act)
-                      const tpHave = actToolPouch.filter(tp => tp.key === 'u1' ? toolPouch.u1 : tp.key === 'u2' ? toolPouch.u2 : tp.key === 'u3' ? toolPouch.u3 : toolPouch.u4).length
-                      const tpTotal = actToolPouch.length
-                      itemsHave += tpHave
-                      itemsTotal += tpTotal
-
-                      const actCraftingKit = CRAFTING_KIT_UPGRADES.filter(ck => ck.whichAct === act)
-                      const ckHave = actCraftingKit.filter(ck => ck.key === 'u1' ? craftingKit.u1 : ck.key === 'u2' ? craftingKit.u2 : ck.key === 'u3' ? craftingKit.u3 : craftingKit.u4).length
-                      const ckTotal = actCraftingKit.length
-                      itemsHave += ckHave
-                      itemsTotal += ckTotal
-
-                      const actMaskFragments = maskShards.filter(m => m.act === act)
-                      const maskFragsHave = actMaskFragments.filter(m => m.ok).length
-                      const maskFragsTotal = actMaskFragments.length
-                      itemsHave += maskFragsHave
-                      itemsTotal += maskFragsTotal
-
-                      const actSpoolFragments = spoolFrags.filter(s => s.act === act)
-                      const spoolFragsHave = actSpoolFragments.filter(s => s.ok).length
-                      const spoolFragsTotal = actSpoolFragments.length
-                      itemsHave += spoolFragsHave
-                      itemsTotal += spoolFragsTotal
-
-                      const categories = [silkHearts, miscItems, crests, skills, abilities]
-                      categories.forEach(category => {
-                        const actItems = category.filter(item => item.act === act)
-                        const have = actItems.filter(item => item.ok).length
-                        const total = actItems.length
-                        itemsHave += have
-                        itemsTotal += total
-                      })
-
-                      return { itemsHave, itemsTotal }
-                    }
-
-                    const act1 = getActTotals(1)
-                    const act2 = getActTotals(2)
-                    const act3 = getActTotals(3)
-
-
-
-                    return (
-                      <div style={{ textAlign: 'center', marginBottom: '20px', padding: '16px', background: 'linear-gradient(135deg, #1a1f2e 0%, #242a33 100%)', borderRadius: '12px', border: '1px solid #2a3441' }}>
-                        <div style={{ fontSize: '16px', color: '#94a3b8', marginBottom: '8px', fontWeight: '500' }}>
-                          Overall Completion (%)
-                        </div>
-                        <div style={{ fontSize: '32px', fontWeight: 'bold', color: globalTotals.have === globalTotals.total ? '#2ecc71' : '#ff7a86', marginBottom: '12px' }}>
-                          {globalTotals.have} / {globalTotals.total}
-                        </div>
-
-                        <div style={{ fontSize: '14px', color: '#94a3b8', marginBottom: '8px', textAlign: 'center', position: 'relative' }}>
-                          Individual Items{' '}
-                          <button
-                            style={{
-                              background: 'none',
-                              border: '1px solid #64748b',
-                              borderRadius: '50%',
-                              width: '14px',
-                              height: '14px',
-                              fontSize: '10px',
-                              color: '#64748b',
-                              cursor: 'pointer',
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              marginLeft: '4px'
-                            }}
-                            onMouseEnter={() => setShowTooltip(true)}
-                            onMouseLeave={() => setShowTooltip(false)}
-                            onClick={() => setShowTooltip(!showTooltip)}
-                          >
-                            ?
-                          </button>
-                          {showTooltip && (
-                            <div style={{
-                              position: 'absolute',
-                              top: '100%',
-                              left: '50%',
-                              transform: 'translateX(-50%)',
-                              backgroundColor: '#1e293b',
-                              color: '#e2e8f0',
-                              padding: '8px 12px',
-                              borderRadius: '6px',
-                              fontSize: '12px',
-                              whiteSpace: 'nowrap',
-                              zIndex: 1000,
-                              border: '1px solid #334155',
-                              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3)',
-                              marginTop: '4px'
-                            }}>
-                              Counts all individual items including mask shards and spool fragments
-                              <br />
-                              Unlike percentage above which counts completed masks/spools only
-                            </div>
-                          )}
-                        </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', gap: '12px' }}>
-                          <div style={{ flex: 1, textAlign: 'center' }}>
-                            <div style={{ fontSize: '16px', fontWeight: 'bold', color: act1.itemsHave === act1.itemsTotal ? '#2ecc71' : '#94a3b8' }}>
-                              {act1.itemsHave} / {act1.itemsTotal}
-                            </div>
-                            <div style={{ fontSize: '12px', color: '#64748b' }}>Act 1</div>
-                          </div>
-                          <div style={{ flex: 1, textAlign: 'center' }}>
-                            <div style={{ fontSize: '16px', fontWeight: 'bold', color: act2.itemsHave === act2.itemsTotal ? '#2ecc71' : '#94a3b8' }}>
-                              {act2.itemsHave} / {act2.itemsTotal}
-                            </div>
-                            <div style={{ fontSize: '12px', color: '#64748b' }}>Act 2</div>
-                          </div>
-                          <div style={{ flex: 1, textAlign: 'center' }}>
-                            <div style={{ fontSize: '16px', fontWeight: 'bold', color: act3.itemsHave === act3.itemsTotal ? '#2ecc71' : '#94a3b8' }}>
-                              {act3.itemsHave} / {act3.itemsTotal}
-                            </div>
-                            <div style={{ fontSize: '12px', color: '#64748b' }}>Act 3</div>
-                          </div>
-                        </div>
-                        <div style={{ width: '100%', height: '8px', background: '#1e293b', borderRadius: '4px', overflow: 'hidden' }}>
-                          <div style={{ width: `${completionPercentage}%`, height: '100%', background: globalTotals.have === globalTotals.total ? '#2ecc71' : '#3b82f6', transition: 'width 0.3s ease' }} />
-                        </div>
-                      </div>
-                    )
-                  })()}
-                  <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'center', gap: '8px' }}>
-                    <button className={`btn small ${actFilter === 0 ? 'primary' : ''}`} onClick={() => setActFilter(0)}>All</button>
-                    <button className={`btn small ${actFilter === 1 ? 'primary' : ''}`} onClick={() => setActFilter(1)}>Act 1</button>
-                    <button className={`btn small ${actFilter === 2 ? 'primary' : ''}`} onClick={() => setActFilter(2)}>Act 2</button>
-                    <button className={`btn small ${actFilter === 3 ? 'primary' : ''}`} onClick={() => setActFilter(3)}>Act 3</button>
-                  </div>
-                  <div className="placeholder-grid">
-                    {categories.map(c => (
-                      <div key={c.key} className="placeholder-card clickable" onClick={() => setSelectedCategory(c.key)}>
-                        <div className="ph-title">
-                          {c.name}
-                          {actFilter !== 0 && (c.key === 'ancientMasks' || c.key === 'silkSpool') && (
-                            <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 'normal', marginTop: '2px' }}>
-                              {c.key === 'ancientMasks' ? '(individual shards)' : '(individual fragments)'}
-                            </div>
-                          )}
-                        </div>
-                        {(() => {
-                          const pr = categoryProgress(c.key);
-                          const isDone = complete(c.key);
-
-                          if (actFilter === 0 && (c.key === 'ancientMasks' || c.key === 'silkSpool')) {
-                            const fragments = c.key === 'ancientMasks'
-                              ? maskShards.filter(x => x.ok).length + '/' + maskShards.length
-                              : spoolFrags.filter(x => x.ok).length + '/' + spoolFrags.length;
-
-                            return (
-                              <div>
-                                <div className="ph-sub" style={{ color: isDone ? '#2ecc71' : '#ff7a86' }}>
-                                  {pr.have} / {pr.total}
-                                </div>
-                                <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>
-                                  {fragments} {c.key === 'ancientMasks' ? 'shards' : 'fragments'}
-                                </div>
-                              </div>
-                            );
-                          }
-
-                          return (<div className="ph-sub" style={{ color: isDone ? '#2ecc71' : '#ff7a86' }}>{pr.have} / {pr.total}</div>)
-                        })()}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <div className="details-panel">
-                  <div className="details-header">
-                    <div className="details-title">{selected ? selected.name : 'Details'}</div>
-                    <div className="details-sub">{selected ? `${selected.percent} total` : 'Select a category'}</div>
-                  </div>
-                  <div className="filters-row">
-                    <button className={`btn small ${hideFound ? 'primary' : ''}`} onClick={() => setHideFound(v => !v)}>{hideFound ? 'Show all' : 'Show only missing'}</button>
-                  </div>
-                  <div className="details-content">
-                    {(() => {
-                      const rows = (selected ? detailsItems(selected.key) : [])
-                      return rows.map((it: any, idx: number) => {
-                        const actVal = (it as any).act as number | undefined
-                        const hasLink = Boolean(it.link && it.link.length > 0 && it.link !== '#')
-                        return (
-                          <div key={it.key ?? `${selected?.key ?? 'none'}-${idx}`} className="item-row" style={{ display: 'grid', gridTemplateColumns: 'auto 1fr auto auto auto', alignItems: 'center', gap: '8px' }}>
-                            {typeof actVal !== 'undefined' ? (
-                              <span className={`act-badge act-${actVal ?? 0}`}>Act {actVal ?? '?'}</span>
-                            ) : (
-                              <span className={`act-badge act-0`} style={{ visibility: 'hidden' }}>Act 0</span>
-                            )}
-                            <span className="item-name">{it.name}</span>
-                            <a className="btn small" href={hasLink ? it.link : '#'} target="_blank" rel="noopener noreferrer" aria-disabled={hasLink ? undefined : true} style={hasLink ? undefined : { pointerEvents: 'none', opacity: 0.5 }}>Open map</a>
-                            <button className="btn small" onClick={() => setExpandedItemKey(expandedItemKey === it.key ? null : it.key)}>Details</button>
-                            <span className={`badge ${it.ok ? 'ok' : 'no'}`} aria-label={it.ok ? 'obtained' : 'not obtained'} title={it.ok ? 'obtained' : 'not obtained'}>{it.ok ? '✓' : '✗'}</span>
-                            {expandedItemKey === it.key && (
-                              <div style={{ gridColumn: '1 / -1', color: '#cbd5e1', fontSize: 13 }}>{it.desc ? it.desc : 'No description yet.'}</div>
-                            )}
-                          </div>
-                        )
-                      })
-                    })()}
-                  </div>
-                </div>
-              </div>
-            )
-          })()}
         </section>
       )}
     </div>

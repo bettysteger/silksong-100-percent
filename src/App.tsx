@@ -105,6 +105,23 @@ function makeItemRowsFromDefs(defs: any[], mapOk: Record<string, boolean>, actFi
   return defs.filter((u: any) => (actFilter === 0 || u.whichAct === actFilter) && (!hideFound ? true : !mapOk[u.key])).map((u: any) => ({ key: u.key, name: u.display, ok: Boolean(mapOk[u.key]), link: u.link, desc: u.desc, act: u.whichAct }))
 }
 
+// Function to get expected totals when no save file is loaded
+function getExpectedTotals() {
+  return {
+    tools: 51,
+    nails: 4,
+    toolPouch: 4,
+    craftingKit: 4,
+    masks: 5,
+    spoolFragments: 9,
+    silkHearts: 3,
+    misc: 2,
+    crests: 6,
+    skills: 6,
+    abilities: 6
+  }
+}
+
 function App(): ReactElement {
   const [dragActive, setDragActive] = useState<boolean>(false)
   const [isProcessing, setIsProcessing] = useState<boolean>(false)
@@ -127,6 +144,67 @@ function App(): ReactElement {
   const [showTooltip, setShowTooltip] = useState<boolean>(false)
   const [fileError, setFileError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement | null>(null)
+
+  // Initialize with empty data to show correct expected totals
+  useEffect(() => {
+    setTools(toolsFromMap(new Map()))
+    setSkills(skillsFromMap(new Map()))
+
+    // Initialize all other arrays with default "not obtained" state
+    const emptyMaskShards = MASKS.map((entry: MaskEntry) => ({
+      name: entry.display,
+      ok: false,
+      link: entry.link,
+      desc: entry.desc,
+      act: entry.whichAct
+    }))
+    setMaskShards(emptyMaskShards)
+
+    const emptySpoolFrags = SPOOL_FRAGMENTS.map(e => ({
+      name: e.display,
+      ok: false,
+      link: e.link,
+      desc: e.desc,
+      act: e.whichAct
+    }))
+    setSpoolFrags(emptySpoolFrags)
+
+    const emptySilkHearts = SILK_HEARTS.map(h => ({
+      name: h.display,
+      ok: false,
+      link: h.link,
+      desc: h.desc,
+      act: h.whichAct
+    }))
+    setSilkHearts(emptySilkHearts)
+
+    const emptyMiscItems = MISC_ITEMS.map(m => ({
+      name: m.display,
+      ok: false,
+      link: m.link,
+      desc: m.desc,
+      act: m.whichAct
+    }))
+    setMiscItems(emptyMiscItems)
+
+    const emptyCrests = CRESTS.map(c => ({
+      name: c.display,
+      ok: false,
+      link: c.link,
+      desc: c.desc,
+      act: c.whichAct
+    }))
+    setCrests(emptyCrests)
+
+    const emptyAbilities = ABILITIES.map(a => ({
+      name: a.display,
+      ok: false,
+      link: a.link,
+      desc: a.desc,
+      act: a.whichAct
+    }))
+    setAbilities(emptyAbilities)
+  }, [])
 
   useEffect(() => {
     if (fileError) {
@@ -490,27 +568,30 @@ function App(): ReactElement {
             return { have: 0, total: 0 }
           }
           const globalTotals = (() => {
-            const tTotal = tools.length
+            const expected = getExpectedTotals()
+
+            // Use actual data if we have processed a save file, otherwise use expected totals
+            const tTotal = processed ? tools.length : expected.tools
             const tHave = tools.filter(t => t.isUnlocked).length
-            const nTotal = 4
+            const nTotal = expected.nails
             const nHave = [nail.u1, nail.u2, nail.u3, nail.u4].filter(Boolean).length
-            const tpTotal = 4
+            const tpTotal = expected.toolPouch
             const tpHave = [toolPouch.u1, toolPouch.u2, toolPouch.u3, toolPouch.u4].filter(Boolean).length
-            const ckTotal = 4
+            const ckTotal = expected.craftingKit
             const ckHave = [craftingKit.u1, craftingKit.u2, craftingKit.u3, craftingKit.u4].filter(Boolean).length
-            const mTotal = Math.floor(maskShards.length / 4)
+            const mTotal = processed ? Math.floor(maskShards.length / 4) : expected.masks
             const mHave = Math.floor(maskShards.filter(x => x.ok).length / 4)
-            const sTotal = Math.floor(spoolFrags.length / 2)
+            const sTotal = processed ? Math.floor(spoolFrags.length / 2) : expected.spoolFragments
             const sHave = Math.floor(spoolFrags.filter(x => x.ok).length / 2)
-            const hTotal = 3
+            const hTotal = expected.silkHearts
             const hHave = silkHearts.filter(x => x.ok).length
-            const miscTotal = 2
+            const miscTotal = expected.misc
             const miscHave = miscItems.filter(x => x.ok).length
-            const crestTotal = 6
+            const crestTotal = expected.crests
             const crestHave = crests.filter(x => x.ok).length
-            const skillTotal = 6
+            const skillTotal = expected.skills
             const skillHave = skills.filter(x => x.ok).length
-            const abilityTotal = 6
+            const abilityTotal = expected.abilities
             const abilityHave = abilities.filter(x => x.ok).length
             const totalHave = tHave + nHave + tpHave + ckHave + mHave + sHave + hHave + miscHave + crestHave + skillHave + abilityHave
             const totalMax = tTotal + nTotal + tpTotal + ckTotal + mTotal + sTotal + hTotal + miscTotal + crestTotal + skillTotal + abilityTotal

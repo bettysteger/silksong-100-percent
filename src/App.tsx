@@ -143,10 +143,120 @@ function App(): ReactElement {
   const [expandedItemKey, setExpandedItemKey] = useState<string | null>(null)
   const [showTooltip, setShowTooltip] = useState<boolean>(false)
   const [fileError, setFileError] = useState<string | null>(null)
+  const [isInitializing, setIsInitializing] = useState<boolean>(true)
   const fileInputRef = useRef<HTMLInputElement | null>(null)
+
+  // Save/load progress to localStorage
+  const saveProgress = useCallback(() => {
+    const progress = {
+      tools: tools.map(t => ({ name: t.name, isUnlocked: t.isUnlocked })),
+      nail,
+      toolPouch,
+      craftingKit,
+      maskShards: maskShards.map(m => ({ name: m.name, ok: m.ok })),
+      spoolFrags: spoolFrags.map(s => ({ name: s.name, ok: s.ok })),
+      silkHearts: silkHearts.map(h => ({ name: h.name, ok: h.ok })),
+      miscItems: miscItems.map(m => ({ name: m.name, ok: m.ok })),
+      crests: crests.map(c => ({ name: c.name, ok: c.ok })),
+      skills: skills.map(s => ({ name: s.name, ok: s.ok })),
+      abilities: abilities.map(a => ({ name: a.name, ok: a.ok })),
+      timestamp: Date.now()
+    }
+    localStorage.setItem('silksong-completion-progress', JSON.stringify(progress))
+    console.log('Progress saved:', progress) // Debug log
+  }, [tools, nail, toolPouch, craftingKit, maskShards, spoolFrags, silkHearts, miscItems, crests, skills, abilities])
+
+  // Auto-save effect - saves whenever any state changes
+  useEffect(() => {
+    // Don't save during initial load
+    if (isInitializing) return
+
+    const timeoutId = setTimeout(() => {
+      saveProgress()
+    }, 500) // Small delay to batch multiple rapid changes
+
+    return () => clearTimeout(timeoutId)
+  }, [tools, nail, toolPouch, craftingKit, maskShards, spoolFrags, silkHearts, miscItems, crests, skills, abilities, saveProgress, isInitializing])
+
+  const loadProgress = useCallback(() => {
+    try {
+      const saved = localStorage.getItem('silksong-completion-progress')
+      if (!saved) return false
+
+      const progress = JSON.parse(saved)
+
+      // Restore tools
+      setTools(prev => prev.map(tool => {
+        const savedTool = progress.tools?.find((t: any) => t.name === tool.name)
+        return savedTool ? { ...tool, isUnlocked: savedTool.isUnlocked } : tool
+      }))
+
+      // Restore flags
+      if (progress.nail) setNail(progress.nail)
+      if (progress.toolPouch) setToolPouch(progress.toolPouch)
+      if (progress.craftingKit) setCraftingKit(progress.craftingKit)
+
+      // Restore items by matching names - use current state from setters
+      if (progress.maskShards) {
+        setMaskShards(prev => prev.map(item => {
+          const savedItem = progress.maskShards.find((s: any) => s.name === item.name)
+          return savedItem ? { ...item, ok: savedItem.ok } : item
+        }))
+      }
+
+      if (progress.spoolFrags) {
+        setSpoolFrags(prev => prev.map(item => {
+          const savedItem = progress.spoolFrags.find((s: any) => s.name === item.name)
+          return savedItem ? { ...item, ok: savedItem.ok } : item
+        }))
+      }
+
+      if (progress.silkHearts) {
+        setSilkHearts(prev => prev.map(item => {
+          const savedItem = progress.silkHearts.find((s: any) => s.name === item.name)
+          return savedItem ? { ...item, ok: savedItem.ok } : item
+        }))
+      }
+
+      if (progress.miscItems) {
+        setMiscItems(prev => prev.map(item => {
+          const savedItem = progress.miscItems.find((s: any) => s.name === item.name)
+          return savedItem ? { ...item, ok: savedItem.ok } : item
+        }))
+      }
+
+      if (progress.crests) {
+        setCrests(prev => prev.map(item => {
+          const savedItem = progress.crests.find((s: any) => s.name === item.name)
+          return savedItem ? { ...item, ok: savedItem.ok } : item
+        }))
+      }
+
+      if (progress.skills) {
+        setSkills(prev => prev.map(item => {
+          const savedItem = progress.skills.find((s: any) => s.name === item.name)
+          return savedItem ? { ...item, ok: savedItem.ok } : item
+        }))
+      }
+
+      if (progress.abilities) {
+        setAbilities(prev => prev.map(item => {
+          const savedItem = progress.abilities.find((s: any) => s.name === item.name)
+          return savedItem ? { ...item, ok: savedItem.ok } : item
+        }))
+      }
+
+      return true
+    } catch (error) {
+      console.error('Failed to load progress:', error)
+      return false
+    }
+  }, [])
 
   // Initialize with empty data to show correct expected totals
   useEffect(() => {
+    setIsInitializing(true)
+
     setTools(toolsFromMap(new Map()))
     setSkills(skillsFromMap(new Map()))
 
@@ -204,6 +314,12 @@ function App(): ReactElement {
       act: a.whichAct
     }))
     setAbilities(emptyAbilities)
+
+    // Load saved progress after initialization
+    setTimeout(() => {
+      loadProgress()
+      setIsInitializing(false)
+    }, 200)
   }, [])
 
   useEffect(() => {
@@ -379,10 +495,101 @@ function App(): ReactElement {
 
   const triggerBrowse = useCallback(() => { fileInputRef.current?.click() }, [])
 
+  // Toggle functions for manual completion tracking
+  const toggleTool = useCallback((toolName: string) => {
+    setTools(prev => prev.map(tool =>
+      tool.name === toolName ? { ...tool, isUnlocked: !tool.isUnlocked } : tool
+    ))
+  }, [])
+
+  const toggleNail = useCallback((nailKey: 'u1' | 'u2' | 'u3' | 'u4') => {
+    setNail(prev => ({ ...prev, [nailKey]: !prev[nailKey] }))
+  }, [])
+
+  const toggleToolPouch = useCallback((key: 'u1' | 'u2' | 'u3' | 'u4') => {
+    setToolPouch(prev => ({ ...prev, [key]: !prev[key] }))
+  }, [])
+
+  const toggleCraftingKit = useCallback((key: 'u1' | 'u2' | 'u3' | 'u4') => {
+    setCraftingKit(prev => ({ ...prev, [key]: !prev[key] }))
+  }, [])
+
+  const toggleMaskShard = useCallback((index: number) => {
+    setMaskShards(prev => prev.map((shard, i) =>
+      i === index ? { ...shard, ok: !shard.ok } : shard
+    ))
+  }, [])
+
+  const toggleSpoolFrag = useCallback((index: number) => {
+    setSpoolFrags(prev => prev.map((frag, i) =>
+      i === index ? { ...frag, ok: !frag.ok } : frag
+    ))
+  }, [])
+
+  const toggleSilkHeart = useCallback((index: number) => {
+    setSilkHearts(prev => prev.map((heart, i) =>
+      i === index ? { ...heart, ok: !heart.ok } : heart
+    ))
+  }, [])
+
+  const toggleMiscItem = useCallback((index: number) => {
+    setMiscItems(prev => prev.map((item, i) =>
+      i === index ? { ...item, ok: !item.ok } : item
+    ))
+  }, [])
+
+  const toggleCrest = useCallback((index: number) => {
+    setCrests(prev => prev.map((crest, i) =>
+      i === index ? { ...crest, ok: !crest.ok } : crest
+    ))
+  }, [])
+
+  const toggleSkill = useCallback((index: number) => {
+    setSkills(prev => prev.map((skill, i) =>
+      i === index ? { ...skill, ok: !skill.ok } : skill
+    ))
+  }, [])
+
+  const toggleAbility = useCallback((index: number) => {
+    setAbilities(prev => prev.map((ability, i) =>
+      i === index ? { ...ability, ok: !ability.ok } : ability
+    ))
+  }, [])
+
+  // Helper function to get the correct toggle function and item data
+  const getToggleHandler = useCallback((category: string, item: any, index: number) => {
+    switch (category) {
+      case 'tools':
+        return () => toggleTool(item.name)
+      case 'nail':
+        return () => toggleNail(item.key as 'u1' | 'u2' | 'u3' | 'u4')
+      case 'toolPouch':
+        return () => toggleToolPouch(item.key as 'u1' | 'u2' | 'u3' | 'u4')
+      case 'craftingKit':
+        return () => toggleCraftingKit(item.key as 'u1' | 'u2' | 'u3' | 'u4')
+      case 'ancientMasks':
+        return () => toggleMaskShard(index)
+      case 'silkSpool':
+        return () => toggleSpoolFrag(index)
+      case 'silkHearts':
+        return () => toggleSilkHeart(index)
+      case 'misc':
+        return () => toggleMiscItem(index)
+      case 'crests':
+        return () => toggleCrest(index)
+      case 'skills':
+        return () => toggleSkill(index)
+      case 'abilities':
+        return () => toggleAbility(index)
+      default:
+        return () => {}
+    }
+  }, [toggleTool, toggleNail, toggleToolPouch, toggleCraftingKit, toggleMaskShard, toggleSpoolFrag, toggleSilkHeart, toggleMiscItem, toggleCrest, toggleSkill, toggleAbility])
+
   return (
     <div className="container">
       <header className="header">
-        <h1 className="title">Silksong 100% Completion Guide</h1>
+        <h1 className="title">Silksong 100% Completion Checklist</h1>
         <p className="subtitle">List of all Requirements to achieve 100% Completion, check all manually or <button className="linklike" onClick={triggerBrowse}>upload a save file</button> below to check your completion percentage instantly!</p>
       </header>
 
@@ -610,33 +817,40 @@ function App(): ReactElement {
               const mapOk: Record<string, boolean> = { u1: craftingKit.u1, u2: craftingKit.u2, u3: craftingKit.u3, u4: craftingKit.u4 }
               return makeItemRowsFromDefs(CRAFTING_KIT_UPGRADES, mapOk, actFilter, hideFound)
             }
-            if (key === 'tools') return tools.map(t => {
+            if (key === 'tools') return tools.map((t, originalIndex) => {
               const meta = TOOL_ITEMS.find(tm => tm.display === t.name)
-              return { key: `tool-${t.name}`, name: t.name, ok: t.isUnlocked, link: t.link, desc: meta?.desc, act: meta?.whichAct ?? 0 }
+              return { key: `tool-${t.name}`, name: t.name, ok: t.isUnlocked, link: t.link, desc: meta?.desc, act: meta?.whichAct ?? 0, originalIndex }
             }).filter(it => (actFilter === 0 || (typeof it.act !== 'undefined' && it.act === actFilter)) && (!hideFound ? true : !it.ok))
             if (key === 'ancientMasks') {
-              return maskShards.filter(s => (actFilter === 0 || s.act === actFilter) && (!hideFound ? true : !s.ok)).map((s, i) => ({ key: `mask-${i}`, name: s.name, ok: s.ok, link: s.link, desc: s.desc, act: s.act }))
+              return maskShards.map((s, originalIndex) => ({ key: `mask-${originalIndex}`, name: s.name, ok: s.ok, link: s.link, desc: s.desc, act: s.act, originalIndex }))
+                .filter(s => (actFilter === 0 || s.act === actFilter) && (!hideFound ? true : !s.ok))
             }
             if (key === 'silkSpool') {
-              return spoolFrags.filter(s => (actFilter === 0 || s.act === actFilter) && (!hideFound ? true : !s.ok)).map((s, i) => ({ key: `spool-${i}`, name: s.name, ok: s.ok, link: s.link, desc: s.desc, act: s.act }))
+              return spoolFrags.map((s, originalIndex) => ({ key: `spool-${originalIndex}`, name: s.name, ok: s.ok, link: s.link, desc: s.desc, act: s.act, originalIndex }))
+                .filter(s => (actFilter === 0 || s.act === actFilter) && (!hideFound ? true : !s.ok))
             }
             if (key === 'silkHearts') {
-              return silkHearts.filter(h => (actFilter === 0 || h.act === actFilter) && (!hideFound ? true : !h.ok)).map((h, i) => ({ key: `heart-${i}`, name: h.name, ok: h.ok, link: h.link, desc: h.desc, act: h.act }))
+              return silkHearts.map((h, originalIndex) => ({ key: `heart-${originalIndex}`, name: h.name, ok: h.ok, link: h.link, desc: h.desc, act: h.act, originalIndex }))
+                .filter(h => (actFilter === 0 || h.act === actFilter) && (!hideFound ? true : !h.ok))
             }
             if (key === 'misc') {
-              return miscItems.filter(m => (actFilter === 0 || m.act === actFilter) && (!hideFound ? true : !m.ok)).map((m, i) => ({ key: `misc-${i}`, name: m.name, ok: m.ok, link: m.link, desc: m.desc, act: m.act }))
+              return miscItems.map((m, originalIndex) => ({ key: `misc-${originalIndex}`, name: m.name, ok: m.ok, link: m.link, desc: m.desc, act: m.act, originalIndex }))
+                .filter(m => (actFilter === 0 || m.act === actFilter) && (!hideFound ? true : !m.ok))
             }
             if (key === 'crests') {
-              return crests.filter(c => (actFilter === 0 || c.act === actFilter) && (!hideFound ? true : !c.ok)).map((c, i) => ({ key: `crest-${i}`, name: c.name, ok: c.ok, link: c.link, desc: c.desc, act: c.act }))
+              return crests.map((c, originalIndex) => ({ key: `crest-${originalIndex}`, name: c.name, ok: c.ok, link: c.link, desc: c.desc, act: c.act, originalIndex }))
+                .filter(c => (actFilter === 0 || c.act === actFilter) && (!hideFound ? true : !c.ok))
             }
             if (key === 'skills') {
-              return skills.filter(s => (actFilter === 0 || s.act === actFilter) && (!hideFound ? true : !s.ok)).map((s, i) => ({ key: `skill-${i}`, name: s.name, ok: s.ok, link: s.link, desc: s.desc, act: s.act }))
+              return skills.map((s, originalIndex) => ({ key: `skill-${originalIndex}`, name: s.name, ok: s.ok, link: s.link, desc: s.desc, act: s.act, originalIndex }))
+                .filter(s => (actFilter === 0 || s.act === actFilter) && (!hideFound ? true : !s.ok))
             }
             if (key === 'abilities') {
-              return abilities.filter(a => (actFilter === 0 || a.act === actFilter) && (!hideFound ? true : !a.ok)).map((a, i) => ({ key: `ability-${i}`, name: a.name, ok: a.ok, link: a.link, desc: a.desc, act: a.act }))
+              return abilities.map((a, originalIndex) => ({ key: `ability-${originalIndex}`, name: a.name, ok: a.ok, link: a.link, desc: a.desc, act: a.act, originalIndex }))
+                .filter(a => (actFilter === 0 || a.act === actFilter) && (!hideFound ? true : !a.ok))
             }
             const def = categories.find(c => c.key === key)
-            return (def?.items ?? []).map((n, i) => ({ key: `${key}-${i}`, name: n, ok: false }))
+            return (def?.items ?? []).map((n, i) => ({ key: `${key}-${i}`, name: n, ok: false, originalIndex: i }))
           }
           const selected = categories.find(c => c.key === selectedCategory) ?? null
           return (
@@ -790,6 +1004,7 @@ function App(): ReactElement {
                   <button className={`btn small ${actFilter === 2 ? 'primary' : ''}`} onClick={() => setActFilter(2)}>Act 2</button>
                   <button className={`btn small ${actFilter === 3 ? 'primary' : ''}`} onClick={() => setActFilter(3)}>Act 3</button>
                 </div>
+
                 <div className="placeholder-grid">
                   {categories.map(c => (
                     <div key={c.key} className="placeholder-card clickable" onClick={() => setSelectedCategory(c.key)}>
@@ -858,6 +1073,7 @@ function App(): ReactElement {
                     return rows.map((it: any, idx: number) => {
                       const actVal = (it as any).act as number | undefined
                       const hasLink = Boolean(it.link && it.link.length > 0 && it.link !== '#')
+                      const toggleHandler = getToggleHandler(selected.key, it, it.originalIndex ?? idx)
                       return (
                         <div key={it.key ?? `${selected?.key ?? 'none'}-${idx}`} className="item-row" style={{ display: 'grid', gridTemplateColumns: 'auto 1fr auto auto auto', alignItems: 'center', gap: '8px' }}>
                           {typeof actVal !== 'undefined' ? (
@@ -868,7 +1084,14 @@ function App(): ReactElement {
                           <span className="item-name">{it.name}</span>
                           <a className="btn small" href={hasLink ? it.link : '#'} target="_blank" rel="noopener noreferrer" aria-disabled={hasLink ? undefined : true} style={hasLink ? undefined : { pointerEvents: 'none', opacity: 0.5 }}>Open map</a>
                           <button className="btn small" onClick={() => setExpandedItemKey(expandedItemKey === it.key ? null : it.key)}>Details</button>
-                          <span className={`badge ${it.ok ? 'ok' : 'no'}`} aria-label={it.ok ? 'obtained' : 'not obtained'} title={it.ok ? 'obtained' : 'not obtained'}>{it.ok ? '✓' : '✗'}</span>
+                          <button
+                            className={`badge ${it.ok ? 'ok' : 'no'}`}
+                            aria-label={it.ok ? 'obtained' : 'not obtained'}
+                            title={`Click to toggle: ${it.ok ? 'Mark as not obtained' : 'Mark as obtained'}`}
+                            onClick={toggleHandler}
+                            >
+                            {it.ok ? '✓' : '✗'}
+                          </button>
                           {expandedItemKey === it.key && (
                             <div style={{ gridColumn: '1 / -1', color: '#cbd5e1', fontSize: 13 }}>{it.desc ? it.desc : 'No description yet.'}</div>
                           )}

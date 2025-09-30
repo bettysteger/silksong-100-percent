@@ -341,9 +341,9 @@ details[open] .chevron { transform: rotate(180deg); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-.badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 12px; }
+.badge { display: inline-block; padding: 2px 8px; font-size: 12px; min-width: 29px; }
 .badge.ok { background: rgba(46, 204, 113, 0.12); color: #2ecc71; border: 1px solid rgba(46, 204, 113, 0.35); }
-.badge.no { background: rgba(231, 76, 60, 0.12); color: #ff7a86; border: 1px solid rgba(231, 76, 60, 0.35); }
+.badge.no { background: rgba(42, 52, 65, 0.12); color: rgb(42, 52, 65); border: 1px solid rgb(42, 52, 65); }
 
 .placeholder-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; max-height: 72vh; overflow: auto; }
 .placeholder-card { border: 1px solid #242a33; border-radius: 12px; background: #0c1016; padding: 12px; display: flex; flex-direction: column; gap: 6px; }

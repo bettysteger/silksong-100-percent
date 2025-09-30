@@ -659,7 +659,7 @@ function App(): ReactElement {
     <div className="container">
       <header className="header">
         <h1 className="title">Silksong 100% Completion Checklist</h1>
-        <p className="subtitle">List of all Requirements to achieve 100% Completion, check all manually or <button className="linklike" onClick={triggerBrowse}>upload a save file</button> below to check your completion percentage instantly!</p>
+        <p className="subtitle">List of all Requirements to achieve 100% Completion, track all manually or <button className="linklike" onClick={triggerBrowse}>upload a save file</button> below. Click on a <b>category box</b> to see detailed items!</p>
       </header>
 
       <section className="section">
@@ -1076,7 +1076,7 @@ function App(): ReactElement {
 
                 <div className="placeholder-grid">
                   {categories.map(c => (
-                    <div key={c.key} className="placeholder-card clickable" onClick={() => setSelectedCategory(c.key)}>
+                    <div key={c.key} className="placeholder-card clickable" onClick={() => setSelectedCategory(c.key)} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setSelectedCategory(c.key); }}>
                       <div className="ph-title">
                         {c.name}
                         {actFilter !== 0 && (c.key === 'ancientMasks' || c.key === 'silkSpool') && (
@@ -1159,8 +1159,8 @@ function App(): ReactElement {
                             <span className={`act-badge act-0`} style={{ visibility: 'hidden' }}>Act 0</span>
                           )}
                           <span className="item-name">{it.name}</span>
+                          {it.desc && <button className="btn small" onClick={() => setExpandedItemKey(expandedItemKey === it.key ? null : it.key)}>Details</button>}
                           <a className="btn small" href={hasLink ? it.link : '#'} target="_blank" rel="noopener noreferrer" aria-disabled={hasLink ? undefined : true} style={hasLink ? undefined : { pointerEvents: 'none', opacity: 0.5 }}>Open map</a>
-                          <button className="btn small" onClick={() => setExpandedItemKey(expandedItemKey === it.key ? null : it.key)} disabled={!it.desc}>Details</button>
                           <button
                             className={`badge ${it.ok ? 'ok' : 'no'}`}
                             aria-label={it.ok ? 'obtained' : 'not obtained'}

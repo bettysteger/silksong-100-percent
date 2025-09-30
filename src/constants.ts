@@ -133,26 +133,26 @@ export const NAIL_UPGRADES: NailUpgrade[] = [
 ]
 
 export const MASKS: MaskEntry[] = [
-  { display: 'Mask Shard 1', whichAct: 1, desc: 'Mask Shard 1 — description will be added.', link: 'https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=477840', type: 'flag', flag: 'PurchasedBonebottomHeartPiece' },
-  { display: 'Mask Shard 2', whichAct: 1, desc: 'Mask Shard 2 — description will be added.', link: 'https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478091', type: 'sceneData', ingame: ['Crawl_02', 'Heart Piece'] },
-  { display: 'Mask Shard 3', whichAct: 1, desc: 'Mask Shard 3 — description will be added.', link: 'https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=477975', type: 'sceneData', ingame: ['Bone_East_20', 'Heart Piece'] },
-  { display: 'Mask Shard 4', whichAct: 1, desc: 'Mask Shard 4 — description will be added.', link: 'https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478177', type: 'sceneData', ingame: ['Shellwood_14', 'Heart Piece'] },
-  { display: 'Mask Shard 5', whichAct: 1, desc: 'Mask Shard 5 — description will be added.', link: 'https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=477901', type: 'sceneData', ingame: ['Dock_08', 'Heart Piece'] },
-  { display: 'Mask Shard 6', whichAct: 1, desc: 'Mask Shard 6 — description will be added.', link: 'https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478233', type: 'sceneData', ingame: ['Weave_05b', 'Heart Piece'] },
-  { display: 'Mask Shard 7', whichAct: 1, desc: 'Mask Shard 7 — description will be added.', link: 'https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478800', type: 'quest', questName: 'Beastfly Hunt' },
-  { display: 'Mask Shard 8', whichAct: 2, desc: 'Mask Shard 8 — description will be added.', link: 'https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478615', type: 'sceneData', ingame: ['Song_09', 'Heart Piece'] },
-  { display: 'Mask Shard 9', whichAct: 2, desc: 'Mask Shard 9 — description will be added.', link: 'https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478671', type: 'sceneData', ingame: ['Library_05', 'Heart Piece'] },
-  { display: 'Mask Shard 10', whichAct: 2, desc: 'Mask Shard 10 — description will be added.', link: 'https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478849', type: 'sceneData', ingame: ['Shadow_13', 'Heart Piece'] },
-  { display: 'Mask Shard 11', whichAct: 2, desc: 'Mask Shard 11 — description will be added.', link: 'https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478841', type: 'sceneData', ingame: ['Bone_East_LavaChallenge', 'Heart Piece (1)'] },
-  { display: 'Mask Shard 12', whichAct: 2, desc: 'Mask Shard 12 — description will be added.', link: 'https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=479001', type: 'sceneData', ingame: ['Slab_17', 'Heart Piece'] },
-  { display: 'Mask Shard 13', whichAct: 2, desc: 'Mask Shard 13 — description will be added.', link: 'https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=479038', type: 'sceneData', ingame: ['Peak_04c', 'Heart Piece'] },
-  { display: 'Mask Shard 14', whichAct: 2, desc: 'Mask Shard 14 — description will be added.', link: 'https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=479151', type: 'sceneData', ingame: ['Wisp_07', 'Heart Piece'] },
-  { display: 'Mask Shard 15', whichAct: 2, desc: 'Mask Shard 15 — description will be added.', link: 'https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478879', type: 'flag', flag: 'MerchantEnclaveShellFragment' },
-  { display: 'Mask Shard 16', whichAct: 2, desc: 'Mask Shard 16 — description will be added.', link: 'https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478498', type: 'sceneData', ingame: ['Coral_19b', 'Heart Piece'] },
-  { display: 'Mask Shard 17', whichAct: 3, desc: 'Mask Shard 17 — description will be added.', link: 'https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=479194', type: 'quest', questName: 'Sprintmaster Race' },
-  { display: 'Mask Shard 18', whichAct: 3, desc: 'Mask Shard 18 — description will be added.', link: 'https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=479447', type: 'quest', questName: 'Ant Trapper' },
-  { display: 'Mask Shard 19', whichAct: 3, desc: 'Mask Shard 19 — description will be added.', link: 'https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=479449', type: 'quest', questName: 'Destroy Thread Cores' },
-  { display: 'Mask Shard 20', whichAct: 3, desc: 'Mask Shard 20 — description will be added.', link: 'https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=479460', type: 'sceneData', ingame: ['Peak_06', 'Heart Piece'] },
+  { display: 'Mask Shard 1', whichAct: 1, desc: '', link: 'https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=477840', type: 'flag', flag: 'PurchasedBonebottomHeartPiece' },
+  { display: 'Mask Shard 2', whichAct: 1, desc: '', link: 'https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478091', type: 'sceneData', ingame: ['Crawl_02', 'Heart Piece'] },
+  { display: 'Mask Shard 3', whichAct: 1, desc: '', link: 'https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=477975', type: 'sceneData', ingame: ['Bone_East_20', 'Heart Piece'] },
+  { display: 'Mask Shard 4', whichAct: 1, desc: '', link: 'https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478177', type: 'sceneData', ingame: ['Shellwood_14', 'Heart Piece'] },
+  { display: 'Mask Shard 5', whichAct: 1, desc: '', link: 'https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=477901', type: 'sceneData', ingame: ['Dock_08', 'Heart Piece'] },
+  { display: 'Mask Shard 6', whichAct: 1, desc: '', link: 'https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478233', type: 'sceneData', ingame: ['Weave_05b', 'Heart Piece'] },
+  { display: 'Mask Shard 7', whichAct: 1, desc: '', link: 'https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478800', type: 'quest', questName: 'Beastfly Hunt' },
+  { display: 'Mask Shard 8', whichAct: 2, desc: '', link: 'https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478615', type: 'sceneData', ingame: ['Song_09', 'Heart Piece'] },
+  { display: 'Mask Shard 9', whichAct: 2, desc: '', link: 'https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478671', type: 'sceneData', ingame: ['Library_05', 'Heart Piece'] },
+  { display: 'Mask Shard 10', whichAct: 2, desc: '', link: 'https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478849', type: 'sceneData', ingame: ['Shadow_13', 'Heart Piece'] },
+  { display: 'Mask Shard 11', whichAct: 2, desc: '', link: 'https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478841', type: 'sceneData', ingame: ['Bone_East_LavaChallenge', 'Heart Piece (1)'] },
+  { display: 'Mask Shard 12', whichAct: 2, desc: '', link: 'https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=479001', type: 'sceneData', ingame: ['Slab_17', 'Heart Piece'] },
+  { display: 'Mask Shard 13', whichAct: 2, desc: '', link: 'https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=479038', type: 'sceneData', ingame: ['Peak_04c', 'Heart Piece'] },
+  { display: 'Mask Shard 14', whichAct: 2, desc: '', link: 'https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=479151', type: 'sceneData', ingame: ['Wisp_07', 'Heart Piece'] },
+  { display: 'Mask Shard 15', whichAct: 2, desc: '', link: 'https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478879', type: 'flag', flag: 'MerchantEnclaveShellFragment' },
+  { display: 'Mask Shard 16', whichAct: 2, desc: '', link: 'https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=478498', type: 'sceneData', ingame: ['Coral_19b', 'Heart Piece'] },
+  { display: 'Mask Shard 17', whichAct: 3, desc: '', link: 'https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=479194', type: 'quest', questName: 'Sprintmaster Race' },
+  { display: 'Mask Shard 18', whichAct: 3, desc: '', link: 'https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=479447', type: 'quest', questName: 'Ant Trapper' },
+  { display: 'Mask Shard 19', whichAct: 3, desc: '', link: 'https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=479449', type: 'quest', questName: 'Destroy Thread Cores' },
+  { display: 'Mask Shard 20', whichAct: 3, desc: '', link: 'https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=479460', type: 'sceneData', ingame: ['Peak_06', 'Heart Piece'] },
 ]
 
 export const MASK_ITEMS: GameItem[] = MASKS.map(m => {
@@ -190,7 +190,7 @@ export type MiscEntry = { display: string; link: string; desc: string; whichAct:
 
 export const MISC_ITEMS: MiscEntry[] = [
   { display: 'Sylphsong', link: 'https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=479654', desc: 'Sylphsong can be acquired in Act 2 by obtaining all crests and consuming all memory lockets available in Act 2. The player can know if Eva is ready to be bound if their six Act 2 crests have all tool slots unlocked.', whichAct: 2, type: 'flag', flag: 'HasBoundCrestUpgrader' },
-  { display: 'Everbloom', link: 'https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=479387', desc: '', whichAct: 3, type: 'collectable', name: 'White Flower', amount: 1 }
+  { display: 'Everbloom', link: 'https://mapgenie.io/hollow-knight-silksong/maps/pharloom?locationIds=479387', desc: 'Complete The Old Hearts quest in Act 3', whichAct: 3, type: 'collectable', name: 'White Flower', amount: 1 }
 ]
 export type CrestEntry = {
   display: string

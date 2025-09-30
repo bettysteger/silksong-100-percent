@@ -113,7 +113,7 @@ export const TOOL_ITEMS: ToolItemDef[] = TOOL_MAPPING.map(t => ({
   ingame: t.ingame,
   link: t.link,
   whichAct: t.whichAct ?? 0,
-  desc: t.desc ?? `Tool: ${t.display}. Description will be added.`,
+  desc: t.desc,
 }))
 
 export type MaskSource =

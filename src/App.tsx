@@ -556,6 +556,75 @@ function App(): ReactElement {
     ))
   }, [])
 
+  // Toggle all items in a category
+  const toggleAllInCategory = useCallback((category: string, selectAll: boolean) => {
+    switch (category) {
+      case 'tools':
+        setTools(prev => prev.map(tool => ({ ...tool, isUnlocked: selectAll })))
+        break
+      case 'nail':
+        setNail({ u1: selectAll, u2: selectAll, u3: selectAll, u4: selectAll })
+        break
+      case 'toolPouch':
+        setToolPouch({ u1: selectAll, u2: selectAll, u3: selectAll, u4: selectAll })
+        break
+      case 'craftingKit':
+        setCraftingKit({ u1: selectAll, u2: selectAll, u3: selectAll, u4: selectAll })
+        break
+      case 'ancientMasks':
+        setMaskShards(prev => prev.map(shard => ({ ...shard, ok: selectAll })))
+        break
+      case 'silkSpool':
+        setSpoolFrags(prev => prev.map(frag => ({ ...frag, ok: selectAll })))
+        break
+      case 'silkHearts':
+        setSilkHearts(prev => prev.map(heart => ({ ...heart, ok: selectAll })))
+        break
+      case 'misc':
+        setMiscItems(prev => prev.map(item => ({ ...item, ok: selectAll })))
+        break
+      case 'crests':
+        setCrests(prev => prev.map(crest => ({ ...crest, ok: selectAll })))
+        break
+      case 'skills':
+        setSkills(prev => prev.map(skill => ({ ...skill, ok: selectAll })))
+        break
+      case 'abilities':
+        setAbilities(prev => prev.map(ability => ({ ...ability, ok: selectAll })))
+        break
+    }
+  }, [])
+
+  // Check if all items in a category are completed
+  const areAllCompleteInCategory = useCallback((category: string): boolean => {
+    switch (category) {
+      case 'tools':
+        return tools.length > 0 && tools.every(tool => tool.isUnlocked)
+      case 'nail':
+        return nail.u1 && nail.u2 && nail.u3 && nail.u4
+      case 'toolPouch':
+        return toolPouch.u1 && toolPouch.u2 && toolPouch.u3 && toolPouch.u4
+      case 'craftingKit':
+        return craftingKit.u1 && craftingKit.u2 && craftingKit.u3 && craftingKit.u4
+      case 'ancientMasks':
+        return maskShards.length > 0 && maskShards.every(shard => shard.ok)
+      case 'silkSpool':
+        return spoolFrags.length > 0 && spoolFrags.every(frag => frag.ok)
+      case 'silkHearts':
+        return silkHearts.length > 0 && silkHearts.every(heart => heart.ok)
+      case 'misc':
+        return miscItems.length > 0 && miscItems.every(item => item.ok)
+      case 'crests':
+        return crests.length > 0 && crests.every(crest => crest.ok)
+      case 'skills':
+        return skills.length > 0 && skills.every(skill => skill.ok)
+      case 'abilities':
+        return abilities.length > 0 && abilities.every(ability => ability.ok)
+      default:
+        return false
+    }
+  }, [tools, nail, toolPouch, craftingKit, maskShards, spoolFrags, silkHearts, miscItems, crests, skills, abilities])
+
   // Helper function to get the correct toggle function and item data
   const getToggleHandler = useCallback((category: string, item: any, index: number) => {
     switch (category) {
@@ -1066,6 +1135,14 @@ function App(): ReactElement {
                 </div>
                 <div className="filters-row">
                   <button className={`btn small ${hideFound ? 'primary' : ''}`} onClick={() => setHideFound(v => !v)}>{hideFound ? 'Show all' : 'Show only missing'}</button>
+                  <button
+                    className={`badge ${areAllCompleteInCategory(selected.key) ? 'ok' : 'no'}`}
+                    aria-label={areAllCompleteInCategory(selected.key) ? 'all obtained' : 'not all obtained'}
+                    title={`Click to toggle: ${areAllCompleteInCategory(selected.key) ? 'Clear all' : 'Select all'}`}
+                    onClick={() => toggleAllInCategory(selected.key, !areAllCompleteInCategory(selected.key))}
+                  >
+                    {areAllCompleteInCategory(selected.key) ? '✓' : '✗'}
+                  </button>
                 </div>
                 <div className="details-content">
                   {(() => {
@@ -1083,7 +1160,7 @@ function App(): ReactElement {
                           )}
                           <span className="item-name">{it.name}</span>
                           <a className="btn small" href={hasLink ? it.link : '#'} target="_blank" rel="noopener noreferrer" aria-disabled={hasLink ? undefined : true} style={hasLink ? undefined : { pointerEvents: 'none', opacity: 0.5 }}>Open map</a>
-                          <button className="btn small" onClick={() => setExpandedItemKey(expandedItemKey === it.key ? null : it.key)}>Details</button>
+                          <button className="btn small" onClick={() => setExpandedItemKey(expandedItemKey === it.key ? null : it.key)} disabled={!it.desc}>Details</button>
                           <button
                             className={`badge ${it.ok ? 'ok' : 'no'}`}
                             aria-label={it.ok ? 'obtained' : 'not obtained'}
@@ -1093,7 +1170,7 @@ function App(): ReactElement {
                             {it.ok ? '✓' : '✗'}
                           </button>
                           {expandedItemKey === it.key && (
-                            <div style={{ gridColumn: '1 / -1', color: '#cbd5e1', fontSize: 13 }}>{it.desc ? it.desc : 'No description yet.'}</div>
+                            <div style={{ gridColumn: '1 / -1', color: '#cbd5e1', fontSize: 13 }}>{it.desc}</div>
                           )}
                         </div>
                       )

@@ -368,6 +368,7 @@ details[open] .chevron { transform: rotate(180deg); }
 .item-name { font-weight: 500; }
 
 .filters-row { display: flex; gap: 8px; margin: 8px 12px 0 12px; position: sticky; top: 52px; z-index: 2; background: #0b0f15; padding-bottom: 8px; }
+.filters-row .badge { margin: 4px 10px 4px auto; height: 21px; }
 
 .act-badge {
   padding: 2px 6px;

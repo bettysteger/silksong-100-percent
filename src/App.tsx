@@ -459,11 +459,6 @@ function App(): ReactElement {
   const onFileChosen = useCallback((f: NullableFile) => {
     if (!f) return
 
-    if (!f.name.toLowerCase().endsWith('.dat')) {
-      setFileError('Please select a .dat file')
-      return
-    }
-
     setFileError(null)
     void processFile(f)
   }, [processFile])

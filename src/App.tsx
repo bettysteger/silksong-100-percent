@@ -38,10 +38,12 @@ function computeFourFlags(rawCount: number, extras: boolean[], order: ('u2' | 'u
       count++
     }
   }
-  for (let i = count; i < rawCount; i++) {
-    if (i === 1 && !u2) u2 = true
-    if (i === 2 && !u3) u3 = true
-    if (i === 3 && !u4) u4 = true
+  if (count < rawCount) {
+    for (let i = 1; i <= rawCount; i++) {
+      if (i === 2 && !u2) u2 = true
+      if (i === 3 && !u3) u3 = true
+      if (i === 4 && !u4) u4 = true
+    }
   }
   return { u1, u2, u3, u4 }
 }
@@ -90,6 +92,7 @@ function skillsFromMap(map: Map<string, boolean>) {
 }
 
 function nailsFromRaw(nailUpgradesRaw: number, gotGourmand: boolean, fleaEnded: boolean) {
+  console.log('nailUpgradesRaw:', nailUpgradesRaw) // Debug log
   return computeFourFlags(nailUpgradesRaw, [gotGourmand, fleaEnded], ['u3', 'u4'])
 }
 

@@ -1183,7 +1183,7 @@ function App(): ReactElement {
       </section>
 
       <p>&nbsp;</p>
-      <h2 className="title">Silksong 100% map</h2>
+      <h2 className="title">Silksong 100% All-in-one Map</h2>
       <p className="subtitle">
         All essential items needed for 100% (plus some non essential, but pretty much required for progression)<br />
         <a href="https://preview.redd.it/silksong-100-map-v0-zksjtk91pgsf1.png?width=9400&auto=webp&s=10163812ab03dc0076a74ae2ec1d15da2e7cfc6b" target="_blank">View map</a>
@@ -1230,7 +1230,8 @@ function App(): ReactElement {
         <br /><br />
         <b>Special thanks to</b> <a href="https://github.com/glikoliz" target="_blank" rel="noopener">glikoliz</a> for creating the original code and completion list!<br />
         I forked the <a href="https://glikoliz.github.io/silksong-save-analyzer/" target="_blank" rel="noopener">Silksong Save Analyzer</a> that lets you track your progress and see everything you haven’t found yet. Simply upload your save file, and it will automatically show your overall completion percentage as well as every item you have or have not found. It also includes a link to an interactive map for every item needed for 100% completion.<br />
-        I added manually tracking of obtained items, saving progress in local storage and mobile support for console players.<br />
+        I added manually tracking of obtained items, saving progress in local storage and mobile support for console players.<br /><br />
+        <b>100% Map source</b>: <a href="https://www.reddit.com/r/Silksong/comments/1nqy89f/silksong_100_map/" target="_blank">Reddit</a>
       </p>
     </div>
   )

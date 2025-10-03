@@ -1183,6 +1183,13 @@ function App(): ReactElement {
       </section>
 
       <p>&nbsp;</p>
+      <h2 className="title">Silksong 100% map</h2>
+      <p className="subtitle">
+        All essential items needed for 100% (plus some non essential, but pretty much required for progression)<br />
+        <a href="https://preview.redd.it/silksong-100-map-v0-zksjtk91pgsf1.png?width=9400&auto=webp&s=10163812ab03dc0076a74ae2ec1d15da2e7cfc6b" target="_blank">View map</a>
+      </p>
+
+      <p>&nbsp;</p>
       <h2 className="title">Upload your save file</h2>
       <p className="subtitle"><code>user*.dat</code> from: <code>%USERPROFILE%\AppData\LocalLow\Team Cherry\Hollow Knight Silksong</code></p>
 
